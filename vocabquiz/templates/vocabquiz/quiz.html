@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quiz</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 0; padding: 24px; background: #f6f7fb; }
+    .card { max-width: 720px; margin: 0 auto; background: white; border-radius: 16px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,.08); }
+    h1 { margin: 0 0 12px; font-size: 22px; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    select, button { font-size: 16px; padding: 10px 12px; border-radius: 10px; border: 1px solid #ddd; background: #fff; }
+    button { cursor: pointer; }
+    button.primary { background: #111; color: #fff; border-color: #111; }
+    .prompt { margin: 18px 0; padding: 14px; border-radius: 12px; background: #f1f3ff; font-size: 18px; }
+    .options { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .opt { text-align: left; width: 100%; white-space: pre-wrap; }
+    .status { margin-top: 14px; font-size: 15px; }
+    .ok { color: #0a7a2f; font-weight: 600; }
+    .bad { color: #b00020; font-weight: 600; }
+    .score { margin-left: auto; font-weight: 700; }
+    .muted { color: #666; }
+    input[type="text"] { font-size: 16px; padding: 10px 12px; border-radius: 10px; border: 1px solid #ddd; }
+    .explain { margin-top: 10px; padding: 12px; border-radius: 12px; background: #f7f7f7; }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <div class="row">
+      <h1 id="title">Vocab Quiz (B2)</h1>
+      <div class="score" id="score">0/0</div>
+    </div>
+
+    <div class="row" style="margin-top: 8px;">
+      <label class="muted" for="quiz">Quiz:</label>
+      <select id="quiz">
+        <option value="vocab">Vocabulario</option>
+        <option value="dbx">Databricks</option>
+      </select>
+
+      <!-- Modo vocab -->
+      <span id="modeWrap" class="row" style="gap: 8px; margin: 0;">
+        <label class="muted" for="mode">Modo:</label>
+        <select id="mode">
+          <option value="es-en">Español → Inglés (4 opciones)</option>
+          <option value="en-es">Inglés → Español (4 opciones)</option>
+          <option value="es-en-write">Español → Inglés (escribir)</option>
+        </select>
+      </span>
+
+      <!-- Examen Databricks -->
+      <span id="examWrap" class="row" style="gap: 8px; margin: 0; display:none;">
+        <label class="muted" for="exam">Examen:</label>
+        <select id="exam">
+          <option value="1">Examen 1</option>
+          <option value="2">Examen 2</option>
+          <option value="3">Examen 3</option>
+          <option value="all">Todos</option>
+        </select>
+      </span>
+
+      <button id="btnReset">Reiniciar</button>
+      <button id="btnNext" class="primary">Siguiente</button>
+    </div>
+
+    <div class="prompt" id="prompt">Pulsa “Siguiente” para empezar.</div>
+    <div class="options" id="options"></div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    const titleEl = document.getElementById("title");
+    const promptEl = document.getElementById("prompt");
+    const optionsEl = document.getElementById("options");
+    const statusEl = document.getElementById("status");
+    const quizEl = document.getElementById("quiz");
+    const modeEl = document.getElementById("mode");
+    const modeWrapEl = document.getElementById("modeWrap");
+    const examEl = document.getElementById("exam");
+    const examWrapEl = document.getElementById("examWrap");
+    const scoreEl = document.getElementById("score");
+    const btnNext = document.getElementById("btnNext");
+    const btnReset = document.getElementById("btnReset");
+
+    let current = null;
+    let correctCount = 0;
+    let totalAnswered = 0;
+    let locked = false;
+
+    function setScore(progress) {
+      if (progress) {
+        scoreEl.textContent = `${correctCount}/${totalAnswered} · ${progress.seen}/${progress.total} vistas`;
+      } else {
+        scoreEl.textContent = `${correctCount}/${totalAnswered}`;
+      }
+    }
+
+    function resetUiText() {
+      optionsEl.innerHTML = "";
+      statusEl.textContent = "";
+      promptEl.textContent = "Pulsa “Siguiente” para empezar.";
+      setScore();
+    }
+
+    function resetLocalCountersOnly() {
+      correctCount = 0;
+      totalAnswered = 0;
+      current = null;
+      locked = false;
+      resetUiText();
+    }
+
+    function applyQuizUi() {
+      const q = quizEl.value;
+
+      if (q === "dbx") {
+        titleEl.textContent = "Databricks Quiz";
+        modeWrapEl.style.display = "none";     // Databricks: no hay modo
+        examWrapEl.style.display = "flex";     // Databricks: sí hay examen
+      } else {
+        titleEl.textContent = "Vocab Quiz (B2)";
+        modeWrapEl.style.display = "flex";
+        examWrapEl.style.display = "none";
+      }
+
+      resetLocalCountersOnly();
+    }
+
+    async function resetGame() {
+      try {
+        const q = quizEl.value;
+        let url = "/api/reset/";
+
+        if (q === "dbx") {
+          // Si tu reset NO usa exam, cambia a "/api/dbx/reset/" y listo.
+          const exam = examEl.value;
+          url = `/api/dbx/reset/?exam=${encodeURIComponent(exam)}`;
+        }
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        resetLocalCountersOnly();
+        statusEl.textContent = "🔄 Reiniciado";
+      } catch (e) {
+        statusEl.innerHTML = `<span class="bad">Error reset:</span> ${e}`;
+      }
+    }
+
+    async function loadVocabQuestion() {
+      locked = false;
+      statusEl.textContent = "";
+      optionsEl.innerHTML = "";
+      promptEl.textContent = "Cargando...";
+
+      try {
+        const mode = modeEl.value;
+        const res = await fetch(`/api/next/?mode=${encodeURIComponent(mode)}`);
+
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(`HTTP ${res.status}: ${txt.slice(0, 200)}`);
+        }
+
+        current = await res.json();
+
+        if (current.done) {
+          promptEl.textContent = "✅ Has terminado todas las palabras en este modo.";
+          optionsEl.innerHTML = "";
+          statusEl.innerHTML = `<span class="ok">Fin</span> · Pulsa “Reiniciar” para empezar de nuevo.`;
+          return;
+        }
+
+        promptEl.textContent = current.prompt;
+        setScore(current.progress);
+
+        if (current.type === "mcq") {
+          current.options.forEach((opt) => {
+            const b = document.createElement("button");
+            b.className = "opt";
+            b.textContent = opt;
+            b.onclick = () => chooseVocabMCQ(opt);
+            optionsEl.appendChild(b);
+          });
+          return;
+        }
+
+        // type === "write"
+        const wrap = document.createElement("div");
+        wrap.style.display = "flex";
+        wrap.style.gap = "10px";
+        wrap.style.alignItems = "center";
+        wrap.style.flexWrap = "wrap";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = "Escribe en inglés…";
+        input.id = "writeInput";
+        input.style.flex = "1";
+        input.style.minWidth = "220px";
+
+        const btn = document.createElement("button");
+        btn.textContent = "Comprobar";
+        btn.className = "primary";
+        btn.onclick = () => chooseVocabWrite();
+
+        wrap.appendChild(input);
+        wrap.appendChild(btn);
+        optionsEl.appendChild(wrap);
+
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") chooseVocabWrite();
+        });
+
+        input.focus();
+
+      } catch (e) {
+        promptEl.textContent = "❌ Error cargando pregunta";
+        statusEl.innerHTML = `<span class="bad">Detalle:</span> ${String(e)}`;
+      }
+    }
+
+    function decorateVocabResult(ok, expected) {
+      statusEl.innerHTML = ok
+        ? `<span class="ok">✅ Correcto</span>`
+        : `<span class="bad">❌ Incorrecto</span> <span class="muted">→ Correcta: <b>${expected}</b></span>`;
+    }
+
+    function lockButtons() {
+      const buttons = [...optionsEl.querySelectorAll("button")];
+      buttons.forEach((b) => b.disabled = true);
+    }
+
+    function chooseVocabMCQ(opt) {
+      if (!current || locked) return;
+      locked = true;
+
+      totalAnswered += 1;
+      const ok = (opt === current.answer);
+      if (ok) correctCount += 1;
+      setScore(current.progress);
+
+      const buttons = [...optionsEl.querySelectorAll("button")];
+      buttons.forEach((b) => {
+        if (b.textContent === current.answer) {
+          b.style.borderColor = "#0a7a2f";
+          b.style.boxShadow = "0 0 0 3px rgba(10,122,47,.15)";
+        }
+        if (b.textContent === opt && !ok) {
+          b.style.borderColor = "#b00020";
+          b.style.boxShadow = "0 0 0 3px rgba(176,0,32,.12)";
+        }
+        b.disabled = true;
+      });
+
+      decorateVocabResult(ok, current.answer);
+    }
+
+    async function chooseVocabWrite() {
+      if (!current || locked) return;
+
+      const input = document.getElementById("writeInput");
+      const typed = (input?.value || "").trim();
+      if (!typed) return;
+
+      locked = true;
+
+      try {
+        const res = await fetch("/api/check/", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ expected: current.answer, typed })
+        });
+
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(`HTTP ${res.status}: ${txt.slice(0, 200)}`);
+        }
+
+        const data = await res.json();
+
+        totalAnswered += 1;
+        if (data.ok) correctCount += 1;
+        setScore(current.progress);
+
+        input.disabled = true;
+        lockButtons();
+
+        decorateVocabResult(data.ok, data.expected);
+
+      } catch (e) {
+        statusEl.innerHTML = `<span class="bad">Error comprobando:</span> ${String(e)}`;
+        locked = false;
+      }
+    }
+
+    // -------------------------
+    // Databricks quiz
+    // -------------------------
+    async function loadDbxQuestion() {
+      locked = false;
+      statusEl.textContent = "";
+      optionsEl.innerHTML = "";
+      promptEl.textContent = "Cargando...";
+
+      try {
+        const exam = examEl.value; // 1,2,3,all
+        const res = await fetch(`/api/dbx/next/?exam=${encodeURIComponent(exam)}`);
+
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(`HTTP ${res.status}: ${txt.slice(0, 200)}`);
+        }
+
+        current = await res.json();
+
+        if (current.done) {
+          promptEl.textContent = "✅ Has terminado todas las preguntas de Databricks.";
+          optionsEl.innerHTML = "";
+          statusEl.innerHTML = `<span class="ok">Fin</span> · Pulsa “Reiniciar” para empezar de nuevo.`;
+          return;
+        }
+
+        promptEl.textContent = current.question;
+        setScore(current.progress);
+
+        current.options.forEach((opt) => {
+          const b = document.createElement("button");
+          b.className = "opt";
+          b.textContent = opt;
+          b.onclick = () => chooseDbx(opt);
+          optionsEl.appendChild(b);
+        });
+
+      } catch (e) {
+        promptEl.textContent = "❌ Error cargando pregunta";
+        statusEl.innerHTML = `<span class="bad">Detalle:</span> ${String(e)}`;
+      }
+    }
+
+    async function chooseDbx(picked) {
+      if (!current || locked) return;
+      locked = true;
+
+      totalAnswered += 1;
+
+      try {
+        // Si tu backend NO necesita exam aquí, no hace falta mandarlo.
+        // Si quieres mandarlo igualmente:
+        // const exam = examEl.value;
+
+        const res = await fetch("/api/dbx/check/", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ id: current.id, picked })
+          // body: JSON.stringify({ id: current.id, picked, exam }) // opcional si lo has implementado
+        });
+
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(`HTTP ${res.status}: ${txt.slice(0, 200)}`);
+        }
+
+        const data = await res.json();
+
+        if (data.ok) correctCount += 1;
+        setScore(current.progress);
+
+        const buttons = [...optionsEl.querySelectorAll("button")];
+        buttons.forEach((b) => {
+          if (b.textContent === data.correct) {
+            b.style.borderColor = "#0a7a2f";
+            b.style.boxShadow = "0 0 0 3px rgba(10,122,47,.15)";
+          }
+          if (b.textContent === picked && !data.ok) {
+            b.style.borderColor = "#b00020";
+            b.style.boxShadow = "0 0 0 3px rgba(176,0,32,.12)";
+          }
+          b.disabled = true;
+        });
+
+        statusEl.innerHTML =
+          (data.ok ? `<span class="ok">✅ Correcto</span>` : `<span class="bad">❌ Incorrecto</span>`) +
+          `<div class="explain"><b>Explicación:</b><br>${data.explanation || ""}</div>`;
+
+      } catch (e) {
+        statusEl.innerHTML = `<span class="bad">Error comprobando:</span> ${String(e)}`;
+        locked = false;
+      }
+    }
+
+    // -------------------------
+    // Router
+    // -------------------------
+    async function loadQuestion() {
+      const q = quizEl.value;
+      if (q === "dbx") return loadDbxQuestion();
+      return loadVocabQuestion();
+    }
+
+    btnNext.addEventListener("click", loadQuestion);
+
+    modeEl.addEventListener("change", () => {
+      if (quizEl.value === "vocab") {
+        resetLocalCountersOnly();
+        loadVocabQuestion();
+      }
+    });
+
+    examEl.addEventListener("change", () => {
+      if (quizEl.value === "dbx") {
+        // resetea contadores locales al cambiar examen (para no mezclar score)
+        resetLocalCountersOnly();
+        loadDbxQuestion();
+      }
+    });
+
+    btnReset.addEventListener("click", resetGame);
+    quizEl.addEventListener("change", applyQuizUi);
+
+    applyQuizUi();
+  </script>
+</body>
+</html>
