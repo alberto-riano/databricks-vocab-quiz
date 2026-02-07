@@ -7,13 +7,19 @@ from django.views.decorators.csrf import csrf_exempt
 from .vocab import VOCAB
 from .databricks_quiz import DATABRICKS_QUIZ
 
+# IMPORT opcional: si aún no lo tienes completo, no rompa la app
+try:
+    from .databricks_quiz_es import DATABRICKS_QUIZ_ES
+except Exception:
+    DATABRICKS_QUIZ_ES = []
+
 
 def quiz_page(request):
     return render(request, "vocabquiz/quiz.html")
 
 
 # ---------------------------
-# VOCAB (igual que lo tienes)
+# VOCAB
 # ---------------------------
 def _get_pool(request, mode: str):
     key = f"seen_{mode}"
@@ -112,29 +118,48 @@ def check_answer(request):
 
 
 # ---------------------------
-# DATABRICKS (nuevo: exam=1|2|3|all)
+# DATABRICKS (exam=1|2|3|all|1es|2es|3es)
 # ---------------------------
 def _normalize_exam(raw: str) -> str:
     raw = (raw or "all").strip().lower()
-    if raw in {"1", "2", "3"}:
-        return raw
-    return "all"
+    allowed = {"1", "2", "3", "all", "1es", "2es", "3es"}
+    return raw if raw in allowed else "all"
+
+
+def _get_dbx_bank(exam: str):
+    # Si exam termina en "es", tiramos del banco español
+    return DATABRICKS_QUIZ_ES if exam.endswith("es") else DATABRICKS_QUIZ
 
 
 def _get_dbx_questions_for_exam(exam: str):
-    # exam viene normalizado: "1"/"2"/"3"/"all"
+    bank = _get_dbx_bank(exam)
+
     if exam == "all":
-        return DATABRICKS_QUIZ
-    ex_num = int(exam)
-    return [q for q in DATABRICKS_QUIZ if int(q.get("exam", 0)) == ex_num]
+        return bank
+
+    # "1es" -> 1
+    ex_num = int(exam.replace("es", ""))
+    return [q for q in bank if int(q.get("exam", 0)) == ex_num]
 
 
 def _get_dbx_pool(request, exam: str):
-    key = f"seen_dbx_exam_{exam}"  # exam = 1/2/3/all
+    key = f"seen_dbx_exam_{exam}"
     seen = set(request.session.get(key, []))
     questions = _get_dbx_questions_for_exam(exam)
     remaining = [i for i in range(len(questions)) if i not in seen]
     return key, seen, remaining, questions
+
+
+def _q_text(q: dict):
+    """
+    Normaliza claves para que el frontend siempre reciba:
+      - question
+      - explanation
+    aunque el banco sea ES con question_es/explanation_es.
+    """
+    question = q.get("question") or q.get("question_es") or ""
+    explanation = q.get("explanation") or q.get("explanation_es") or ""
+    return question, explanation
 
 
 @require_http_methods(["GET"])
@@ -151,15 +176,17 @@ def dbx_next(request):
     seen.add(idx)
     request.session[key] = list(seen)
 
-    options = list(q["options"])
+    options = list(q.get("options", []))
     random.shuffle(options)
+
+    question, _ = _q_text(q)
 
     return JsonResponse({
         "done": False,
         "type": "dbx-mcq",
         "exam": exam,
         "id": q.get("id", str(idx)),
-        "question": q["question"],
+        "question": question,
         "options": options,
         "progress": {"seen": len(seen), "total": len(questions)},
     })
@@ -177,28 +204,31 @@ def dbx_check(request):
     qid = (data.get("id") or "").strip()
     picked = (data.get("picked") or "").strip()
 
-    # Buscar por id en TODO el banco (da igual el examen)
+    # Buscar por id: primero EN, luego ES
     q = next((x for x in DATABRICKS_QUIZ if x.get("id") == qid), None)
+    if q is None:
+        q = next((x for x in DATABRICKS_QUIZ_ES if x.get("id") == qid), None)
+
     if q is None:
         return JsonResponse({"ok": False, "error": "Question not found"}, status=404)
 
-    correct = q["answer"]
+    correct = q.get("answer", "")
     ok = (picked == correct)
+
+    _, explanation = _q_text(q)
 
     return JsonResponse({
         "ok": ok,
         "picked": picked,
         "correct": correct,
-        "explanation": q.get("explanation", ""),
+        "explanation": explanation,
     })
 
 
 @require_http_methods(["GET"])
 def dbx_reset(request):
     """
-    /api/dbx/reset/?exam=1|2|3|all
-    - Si exam=all => borra progreso de todos los exámenes (incluido all)
-    - Si exam=1 => borra solo ese
+    /api/dbx/reset/?exam=1|2|3|all|1es|2es|3es
     """
     exam = _normalize_exam(request.GET.get("exam", "all"))
 
