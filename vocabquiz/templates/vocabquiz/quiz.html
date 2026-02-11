@@ -35,8 +35,8 @@
     <div class="row" style="margin-top: 8px;">
       <label class="muted" for="quiz">Quiz:</label>
       <select id="quiz">
-        <option value="vocab">Vocabulario</option>
         <option value="dbx">Databricks</option>
+        <option value="vocab">Vocabulario</option>
       </select>
 
       <!-- Modo vocab -->
@@ -53,13 +53,14 @@
       <span id="examWrap" class="row" style="gap: 8px; margin: 0; display:none;">
         <label class="muted" for="exam">Examen:</label>
         <select id="exam">
-          <option value="1">Examen 1 (EN)</option>
-          <option value="1es">Examen 1 (ES resumen)</option>
-          <option value="2">Examen 2 (EN)</option>
-          <option value="2es">Examen 2 (ES resumen)</option>
-          <option value="3">Examen 3 (EN)</option>
-          <option value="3es">Examen 3 (ES resumen)</option>
-          <option value="all">Todos (EN)</option>
+          <option value="1">Examen 1 Ingles</option>
+          <option value="1es">Examen 1 Español</option>
+          <option value="2">Examen 2 Ingles</option>
+          <option value="2es">Examen 2 Español</option>
+          <option value="3">Examen 3 Ingles</option>
+          <option value="3es">Examen 3 Español</option>
+          <option value="all">Todos Ingles</option>
+          <option value="alles">Todos Español</option>
         </select>
       </span>
 
@@ -344,7 +345,7 @@
         const res = await fetch("/api/dbx/check/", {
           method: "POST",
           headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ id: current.id, picked })
+          body: JSON.stringify({ id: current.id, picked, exam: current.exam })
         });
 
         if (!res.ok) {

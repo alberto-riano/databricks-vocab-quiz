@@ -882,4 +882,1869 @@ DATABRICKS_QUIZ = [
             "• Databricks-to-Databricks: Como la empresa auditora también usa Databricks (aunque sea en otra nube), la integración es nativa a través de Unity Catalog. El receptor \"monta\" los datos compartidos como un catálogo de solo lectura y puede consultarlos directamente. Los datos permanecen en el almacenamiento de origen y solo viajan cuando se ejecuta una consulta (egress), pero no se almacenan/replican persistentemente en el destino."
         ),
     },
+# ---------------- EXAM 2 ----------------
+
+    {
+        "exam": 2,
+        "id": "q01_git_save_local_changes_remote_repo",
+        "question": (
+            "¿Cuál de las siguientes operaciones puede usar un data engineer para guardar los cambios locales de una carpeta Git en su repositorio remoto?"
+        ),
+        "options": ["Merge & Pull", "Merge & Push", "Commit & Pull", "Commit & Push"],
+        "answer": "Commit & Push",
+        "explanation": (
+            "Commit & Push se utiliza para guardar los cambios en el repositorio local y después subir ese contenido al repositorio remoto.\n"
+            "• commit: registra los cambios en el repositorio local.\n"
+            "• push: envía esos commits al remote repository."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q02_sql_rotate_rows_into_columns",
+        "question": (
+            "¿Cuál de las siguientes palabras clave SQL puede usarse para rotar filas de una tabla convirtiendo valores de filas en múltiples columnas?"
+        ),
+        "options": ["PIVOT", "ZORDER BY", "ROTATE", "TRANSFORM"],
+        "answer": "PIVOT",
+        "explanation": (
+            "PIVOT transforma las filas de una tabla rotando los valores únicos de una columna específica en columnas separadas.\n"
+            "En otras palabras, convierte una tabla de formato long a formato wide."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q03_git_folder_functionality",
+        "question": (
+            "¿Cuál de las siguientes funcionalidades puede realizarse en Git folders?"
+        ),
+        "options": [
+            "Crear pull requests",
+            "Eliminar branches",
+            "Hacer pull de cambios desde un repositorio Git remoto",
+            "Crear nuevos repositorios Git remotos"
+        ],
+        "answer": "Hacer pull de cambios desde un repositorio Git remoto",
+        "explanation": (
+            "Los Git folders soportan la operación git pull.\n"
+            "Se utiliza para hacer fetch y descargar contenido desde un remote repository y actualizar inmediatamente el repositorio local para que coincida con ese contenido."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q04_databricks_data_warehousing_service",
+        "question": (
+            "¿Cuál de los siguientes servicios proporciona una solución de data warehousing en Databricks Intelligence Platform?"
+        ),
+        "options": [
+            "Delta Lives Tables (DLT)",
+            "Unity Catalog",
+            "Databricks SQL",
+            "SQL warehouse"
+        ],
+        "answer": "Databricks SQL",
+        "explanation": (
+            "Databricks SQL (DB SQL) es el data warehouse dentro de la Databricks Lakehouse Platform que permite ejecutar consultas SQL y aplicaciones de BI a escala."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q05_create_table_from_csv_location",
+        "question": (
+            "Rellena el siguiente espacio en blanco para crear correctamente una tabla usando datos de archivos CSV ubicados en /path/input\n\n"
+            "CREATE TABLE my_table\n"
+            "(col1 STRING, col2 STRING)\n"
+            "__________\n"
+            "OPTIONS (header = \"true\", delimiter = \";\")\n"
+            "LOCATION = \"/path/input\""
+        ),
+        "options": ["FROM CSV", "USING DELTA", "AS CSV", "USING CSV"],
+        "answer": "USING CSV",
+        "explanation": (
+            "CREATE TABLE USING permite especificar un external data source como formato CSV junto con opciones adicionales.\n"
+            "Esto crea una external table que apunta a archivos almacenados en una ubicación externa."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q06_autoloader_tracking_ingestion_progress",
+        "question": (
+            "¿Cuál de las siguientes técnicas permite a Auto Loader rastrear el progreso de ingesta y almacenar metadatos de los archivos descubiertos?"
+        ),
+        "options": ["Photon engine", "COPY INTO", "Watermarking", "Checkpointing"],
+        "answer": "Checkpointing",
+        "explanation": (
+            "Auto Loader realiza el seguimiento de los archivos descubiertos usando checkpointing en la checkpoint location.\n"
+            "El checkpointing permite a Auto Loader proporcionar garantías de ingesta exactly-once."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q07_describe_schema_location",
+        "question": (
+            "Un data engineer tiene un schema de custom-location llamado db_hr, y quiere saber dónde fue creado este schema en el almacenamiento subyacente.\n\n"
+            "¿Cuál de los siguientes comandos puede usar el data engineer para completar esta tarea?"
+        ),
+        "options": [
+            "DESCRIBE DATABASE db_hr",
+            "DESCRIBE EXTENDED db_hr",
+            "DESCRIBE db_hr",
+            "SELECT location FROM db_hr.db"
+        ],
+        "answer": "DESCRIBE DATABASE db_hr",
+        "explanation": (
+            "DESCRIBE DATABASE (o DESCRIBE SCHEMA) devuelve la metadata de un schema existente, incluyendo su location en el filesystem.\n"
+            "Si se usa la opción EXTENDED también se devuelven propiedades adicionales de la base de datos."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q08_unity_catalog_least_privilege_access",
+        "question": (
+            "Un data scientist del departamento de marketing requiere acceso de solo lectura a la tabla ‘customer_insights’ ubicada en el schema analytics, que forma parte del catálogo BI. "
+            "Los datos se usarán para generar informes trimestrales de customer engagement. De acuerdo con el principio de least privilege, solo deben concederse los permisos mínimos necesarios para realizar las tareas requeridas.\n\n"
+            "¿Qué comandos SQL otorgarán correctamente el acceso con los mínimos privilegios?"
+        ),
+        "options": [
+            "GRANT SELECT ON TABLE bi.analytics.insights TO marketing_team;\nGRANT USE CATALOG ON CATALOG bi TO marketing_team;",
+            "GRANT SELECT ON TABLE bi.analytics.insights TO marketing_team;\nGRANT USE SCHEMA ON SCHEMA bi.analytics TO marketing_team;",
+            "GRANT SELECT ON TABLE bi.analytics.insights TO marketing_team;\nGRANT USE SCHEMA ON SCHEMA bi.analytics TO marketing_team;\nGRANT USE CATALOG ON CATALOG bi TO marketing_team;",
+            "GRANT SELECT ON TABLE bi.analytics.insights TO marketing_team;"
+        ],
+        "answer": "GRANT SELECT ON TABLE bi.analytics.insights TO marketing_team;\nGRANT USE SCHEMA ON SCHEMA bi.analytics TO marketing_team;\nGRANT USE CATALOG ON CATALOG bi TO marketing_team;",
+        "explanation": (
+            "Para acceder a una tabla concreta en Unity Catalog, el usuario necesita permisos SELECT sobre la tabla, USE SCHEMA sobre el schema contenedor y USE CATALOG sobre el catálogo padre.\n"
+            "Esto proporciona el acceso mínimo necesario para operaciones de lectura sin sobreasignar privilegios."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q09_silver_layer_incorrect_statement",
+        "question": (
+            "Un equipo de data engineering está usando la Silver Layer en la Medallion Architecture para hacer joins de datos de clientes con external lookup tables y aplicar filtros.\n\n"
+            "Un miembro del equipo hace las siguientes afirmaciones sobre la Silver Layer. ¿Cuál de estas afirmaciones es incorrecta?"
+        ),
+        "options": [
+            "La Silver Layer gestiona la deduplicación de datos",
+            "La Silver Layer se integra con otras fuentes para enriquecimiento de datos",
+            "La Silver Layer almacena raw data enriquecido con detalles del source file y timestamps de ingesta",
+            "La Silver Layer es responsable de la limpieza y el filtrado de datos"
+        ],
+        "answer": "La Silver Layer almacena raw data enriquecido con detalles del source file y timestamps de ingesta",
+        "explanation": (
+            "La Silver layer contiene datos refinados y limpios procedentes de la Bronze layer.\n"
+            "Aquí se realizan operaciones de cleansing, filtering, deduplication y enrichment mediante joins con otras fuentes.\n"
+            "El almacenamiento de raw data con metadata de ingesta pertenece a la Bronze layer, no a la Silver layer."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q10_drop_delta_table_managed",
+        "question": (
+            "Al hacer drop de una Delta table, ¿cuál de las siguientes opciones explica por qué se eliminarán tanto los metadatos de la tabla como los data files?"
+        ),
+        "options": [
+            "Los data files son más antiguos que el periodo de retención por defecto",
+            "La tabla es shallow cloned",
+            "La tabla es managed",
+            "La tabla es external"
+        ],
+        "answer": "La tabla es managed",
+        "explanation": (
+            "En una managed table, tanto la metadata como los data files están gestionados por Databricks.\n"
+            "Al ejecutar DROP TABLE sobre una managed table se eliminan tanto la metadata como los archivos físicos.\n"
+            "En una external table solo se elimina la metadata, no los datos."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q11_streaming_read_table",
+        "question": (
+            "¿Cuál de los siguientes bloques de código puede usar un data engineer para consultar la tabla events como una fuente streaming?"
+        ),
+        "options": [
+            'spark.readStream.table("events")',
+            'spark.read.table("events")',
+            'spark.readStream("events")',
+            'spark.readStream().table("events")'
+        ],
+        "answer": 'spark.readStream.table("events")',
+        "explanation": (
+            "Delta Lake está profundamente integrado con Spark Structured Streaming.\n"
+            "Para leer una tabla como streaming source se utiliza spark.readStream.table(<table_name>).\n"
+            "spark.read.table realiza lectura batch, no streaming."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q12_serverless_scaling_batch_jobs",
+        "question": (
+            "Una empresa de e-commerce experimenta un rápido crecimiento de datos debido a picos estacionales de tráfico. Su equipo de ingeniería necesita asegurar que los jobs de batch processing se completen dentro de un timeframe fijo, incluso durante las horas pico. "
+            "El equipo tiene recursos humanos limitados para la gestión de infraestructura y busca una solución con escalado y optimización automatizados.\n\n"
+            "¿Qué opción cumple mejor estas condiciones?"
+        ),
+        "options": [
+            "Databricks Serverless compute",
+            "All-purpose clusters con autoscaling habilitado",
+            "Dedicated clusters con Photon habilitado",
+            "Job clusters con asignación máxima de recursos"
+        ],
+        "answer": "Databricks Serverless compute",
+        "explanation": (
+            "Databricks Serverless compute ajusta automáticamente los recursos a workloads variables.\n"
+            "Evita el overprovisioning en horas valle y sigue cumpliendo SLAs en picos de demanda.\n"
+            "Además elimina la gestión de infraestructura permitiendo a los engineers centrarse en la lógica de datos."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q13_dlt_continuous_development_mode",
+        "question": (
+            "El equipo de data engineer tiene un pipeline de DLT que actualiza todas las tablas a intervalos definidos hasta que se detiene manualmente. "
+            "Los recursos de cómputo del pipeline continúan ejecutándose para permitir quick testing.\n\n"
+            "¿Cuál de las siguientes opciones describe mejor los execution modes de este pipeline DLT?"
+        ),
+        "options": [
+            "El pipeline DLT se ejecuta en Triggered Pipeline mode bajo Production mode.",
+            "El pipeline DLT se ejecuta en Continuous Pipeline mode bajo Development mode.",
+            "El pipeline DLT se ejecuta en Continuous Pipeline mode bajo Production mode.",
+            "El pipeline DLT se ejecuta en Triggered Pipeline mode bajo Development mode."
+        ],
+        "answer": "El pipeline DLT se ejecuta en Continuous Pipeline mode bajo Development mode.",
+        "explanation": (
+            "Los pipelines Continuous actualizan las tablas continuamente hasta que se detienen manualmente.\n"
+            "En Development mode el cluster permanece activo para facilitar pruebas rápidas y evitar reinicios constantes."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q14_schedule_query_refresh",
+        "question": (
+            "¿Desde cuál de las siguientes ubicaciones puede un data engineer definir un schedule para refrescar automáticamente una query SQL en Databricks?"
+        ),
+        "options": [
+            "No hay forma de refrescar automáticamente una query en Databricks. Los schedules solo pueden definirse para dashboards y alerts para refrescar sus queries subyacentes.",
+            "Desde el SQL Editor en Databricks SQL",
+            "Desde la UI de Jobs",
+            "Desde la página de Alerts en Databricks SQL"
+        ],
+        "answer": "Desde el SQL Editor en Databricks SQL",
+        "explanation": (
+            "En Databricks SQL se puede programar la ejecución automática de una query directamente desde el SQL Editor."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q15_databricks_connect_purpose",
+        "question": (
+            "¿Cuál de las siguientes opciones describe mejor el propósito y la funcionalidad de Databricks Connect?"
+        ),
+        "options": [
+            "Databricks Connect es una client library que permite a los engineers desarrollar Spark code localmente usando su IDE, mientras ejecutan ese código remotamente en un Databricks cluster.",
+            "Databricks Connect es una herramienta de visualización de datos diseñada para crear y renderizar dashboards interactivos fuera del entorno Databricks.",
+            "Databricks Connect es una solución de ingesta de datos que ofrece conectores simples y eficientes para ingerir datos desde varias fuentes de datos al lakehouse.",
+            "Databricks Connect es un protocolo abierto desarrollado por Databricks para secure data sharing con otras organizaciones independientemente de las plataformas de cómputo que usen."
+        ],
+        "answer": "Databricks Connect es una client library que permite a los engineers desarrollar Spark code localmente usando su IDE, mientras ejecutan ese código remotamente en un Databricks cluster.",
+        "explanation": (
+            "Databricks Connect es una client library del Databricks Runtime que permite desarrollar Spark code localmente desde un IDE y ejecutarlo remotamente en un Databricks cluster.\n"
+            "Facilita escribir, testear y debuggear código aprovechando la capacidad de cómputo del cluster remoto."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q16_change_table_owner_catalog_explorer",
+        "question": (
+            "¿En cuál de las siguientes ubicaciones puede un data engineer cambiar el owner de una tabla?"
+        ),
+        "options": [
+            "En el Catalog Explorer, bajo la pestaña Permissions de la página de la tabla",
+            "En el Catalog Explorer, desde el campo Owner en la página de la base de datos, ya que los owners se establecen a nivel de base de datos",
+            "En el Catalog Explorer, bajo la pestaña Permissions de la página de la base de datos, ya que los owners se establecen a nivel de base de datos",
+            "En el Catalog Explorer, desde el campo Owner en la página de la tabla"
+        ],
+        "answer": "En el Catalog Explorer, desde el campo Owner en la página de la tabla",
+        "explanation": (
+            "Desde el Catalog Explorer se puede navegar a la página de la tabla y cambiar su propietario directamente en el campo Owner.\n"
+            "El ownership se gestiona a nivel de objeto (tabla), no únicamente a nivel de database."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q17_git_folders_vs_notebook_versioning",
+        "question": (
+            "Un junior data engineer usa el versionado integrado de Databricks Notebooks para source control. Un senior data engineer recomendó usar Git folders en su lugar.\n\n"
+            "¿Cuál de las siguientes opciones podría explicar por qué se recomienda Git folders en lugar del versionado de Databricks Notebooks?"
+        ),
+        "options": [
+            "Git folders almacenan archivos de código fuente en Unity Catalog para seguridad y gobernanza centralizadas",
+            "Git folders sincronizan automáticamente todos los cambios de notebooks con el repositorio Git remoto en tiempo real",
+            "Git folders soportan resolución automática de conflictos cuando varios usuarios editan el mismo notebook",
+            "Git folders soportan crear y gestionar branches para trabajo de desarrollo."
+        ],
+        "answer": "Git folders soportan crear y gestionar branches para trabajo de desarrollo.",
+        "explanation": (
+            "Una ventaja clave de Git folders frente al versionado nativo de Notebooks es que permiten trabajar con branches.\n"
+            "Esto facilita workflows de desarrollo como feature branches, pull requests y colaboración entre developers."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q18_notebook_interactive_debugger",
+        "question": (
+            "Un data scientist quiere probar una nueva función en Python que parsea y normaliza la entrada del usuario. En lugar de depender únicamente de print statements o logs, prefieren una forma más dinámica de seguir el flujo de datos y entender cómo cambian diferentes variables a medida que la función se ejecuta.\n\n"
+            "¿Qué herramienta debería usar el data scientist para obtener estos insights de forma efectiva dentro de un notebook de Databricks?"
+        ),
+        "options": [
+            "Audit logs",
+            "Markdown cells",
+            "Notebook Interactive Debugger",
+            "Spark UI"
+        ],
+        "answer": "Notebook Interactive Debugger",
+        "explanation": (
+            "El Notebook Interactive Debugger permite inspeccionar variables de forma interactiva y paso a paso durante la ejecución.\n"
+            "Es más potente que usar prints o logs para entender cómo se transforman los datos en cada etapa."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q19_liquid_clustering_benefit",
+        "question": (
+            "¿Cuál es un beneficio clave de Liquid Clustering para analytical workloads en Databricks?"
+        ),
+        "options": [
+            "Reduce el volumen de datos escaneados durante la ejecución de la query",
+            "Encripta automáticamente campos de datos sensibles durante la ingesta",
+            "Previene la duplicación de datos, mejorando así el rendimiento de la query",
+            "Asegura streaming en tiempo real desde el input datasource"
+        ],
+        "answer": "Reduce el volumen de datos escaneados durante la ejecución de la query",
+        "explanation": (
+            "Liquid Clustering optimiza el layout físico de las tablas Delta organizando los datos por clustering keys.\n"
+            "Esto permite data skipping y reduce la cantidad de datos escaneados durante la ejecución de queries, mejorando el rendimiento."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q20_repair_failed_job_task",
+        "question": (
+            "Un Databricks job grande falla en la tarea 12 de 15 debido a que falta un configuration file. Tras resolver el problema, ¿cuál es la acción más apropiada para reanudar el workflow?"
+        ),
+        "options": [
+            "Repair run desde la tarea 12",
+            "Esperar a la siguiente ejecución programada",
+            "Ejecutar manualmente el notebook asociado a la tarea 12",
+            "Reiniciar el job"
+        ],
+        "answer": "Repair run desde la tarea 12",
+        "explanation": (
+            "Databricks permite reparar jobs fallidos ejecutando solo las tareas que fallaron y sus dependencias.\n"
+            "Las tareas completadas correctamente no se vuelven a ejecutar, reduciendo tiempo y consumo de recursos."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q21_insert_into_delta_table",
+        "question": (
+            "¿Cuál de los siguientes comandos SQL añadirá (append) esta nueva fila a la tabla Delta users existente?\n\n"
+            "user_id | name | age\n"
+            "0015    | Adam | 23"
+        ),
+        "options": [
+            'INSERT VALUES ("0015", "Adam", 23) INTO users',
+            'APPEND VALUES ("0015", "Adam", 23) INTO users',
+            'INSERT INTO users VALUES ("0015", "Adam", 23)',
+            'APPEND INTO users VALUES ("0015", "Adam", 23)'
+        ],
+        "answer": 'INSERT INTO users VALUES ("0015", "Adam", 23)',
+        "explanation": (
+            "INSERT INTO permite añadir nuevas filas a una tabla Delta existente especificando los valores directamente.\n"
+            "No existe la sentencia APPEND en SQL estándar de Databricks."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q22_run_sql_in_python_notebook",
+        "question": (
+            "Si el lenguaje por defecto del notebook es Python, ¿cuál de las siguientes opciones puede usar un data engineer para ejecutar comandos SQL en este Python Notebook?"
+        ),
+        "options": [
+            "Pueden añadir %sql al inicio de una celda.",
+            "¡Esto no es posible! Necesitan cambiar el lenguaje por defecto del notebook a SQL",
+            "Pueden añadir el magic command %language al inicio de una celda para forzar la detección de lenguaje.",
+            "Primero necesitan importar la librería SQL en una celda"
+        ],
+        "answer": "Pueden añadir %sql al inicio de una celda.",
+        "explanation": (
+            "En un notebook de Databricks se puede sobrescribir el lenguaje por celda usando magic commands.\n"
+            "Añadiendo %sql al inicio de la celda se pueden ejecutar sentencias SQL dentro de un notebook Python."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q23_job_failure_email_notifications",
+        "question": (
+            "Un equipo de data engineering tiene un Job multi-tasks en producción. Los miembros del equipo necesitan ser notificados en caso de fallo del job.\n\n"
+            "¿Cuál de los siguientes enfoques puede usarse para enviar emails a los miembros del equipo en caso de fallo del job?"
+        ),
+        "options": [
+            "Solo el owner del Job puede configurarse para ser notificado en caso de fallo del job",
+            "Pueden configurar los ajustes de notificaciones por email en la página del job",
+            "No hay forma de notificar a los usuarios en caso de fallo del job",
+            "Pueden usar la Job API para enviar emails programáticamente según el estado de cada task"
+        ],
+        "answer": "Pueden configurar los ajustes de notificaciones por email en la página del job",
+        "explanation": (
+            "Databricks Jobs permite configurar notificaciones por email para eventos como start, success o failure desde la página del job.\n"
+            "Se pueden añadir múltiples direcciones en la sección de notificaciones."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q24_autoloader_schema_evolution_rescue",
+        "question": (
+            "Un data engineer está diseñando un pipeline de ingestión streaming usando Auto Loader. El requisito es que el pipeline nunca falle ante cambios de schema, pero debe capturar cualquier nueva columna que llegue en los datos para su inspección posterior.\n\n"
+            "¿Cuál de los siguientes modos de schema evolution debería usar el engineer para cumplir este requisito?"
+        ),
+        "options": [
+            "addNewColumns",
+            "none",
+            "failOnNewColumns",
+            "rescue"
+        ],
+        "answer": "rescue",
+        "explanation": (
+            "Auto Loader soporta varios modos de schema evolution:\n"
+            "• addNewColumns (default): añade nuevas columnas al schema pero el stream falla al detectarlas hasta actualizar la tabla.\n"
+            "• failOnNewColumns: el stream falla cuando aparecen columnas nuevas.\n"
+            "• none: ignora las nuevas columnas y no las captura.\n"
+            "• rescue: el stream nunca falla y las nuevas columnas se almacenan en la rescued data column.\n\n"
+            "Como el requisito es no fallar nunca y además capturar las columnas nuevas para inspección posterior, el único modo que cumple ambas condiciones es rescue."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q25_delta_sharing_tables_and_notebooks",
+        "question": (
+            "Un data engineer de una empresa global de logística necesita compartir datasets específicos y analysis notebooks con un proveedor externo de analítica, que es cliente de Databricks. "
+            "Los datos están almacenados como Delta tables en Unity Catalog, y el proveedor no tiene acceso a la cuenta de Databricks de la empresa.\n\n"
+            "¿Cuál es la forma más efectiva y segura de compartir los datos y notebooks con el proveedor externo?"
+        ),
+        "options": [
+            "Compartir las Delta tables usando Delta Sharing, y enviar todos los notebooks juntos en un único fichero DBC",
+            "Compartir las Delta tables usando Delta Sharing, y publicar los notebooks como páginas HTML de forma programática",
+            "Compartir las Delta tables usando Delta Sharing, y conceder acceso a cada notebook mediante su funcionalidad de colaboración integrada",
+            "Compartir las Delta tables y los notebooks usando Delta Sharing"
+        ],
+        "answer": "Compartir las Delta tables y los notebooks usando Delta Sharing",
+        "explanation": (
+            "Databricks-to-Databricks Delta Sharing permite compartir de forma segura tablas, notebooks, volumes y modelos ML con otros clientes de Databricks.\n"
+            "No requiere acceso al mismo workspace y mantiene governance y control de acceso a través de Unity Catalog.\n"
+            "Es la opción más segura y escalable para compartir datos y artefactos analíticos externamente."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q26_revoke_table_permissions",
+        "question": (
+            "¿Qué parte de la plataforma Databricks puede usar un data engineer para revocar permisos de usuarios sobre tablas?"
+        ),
+        "options": [
+            "Catalog Explorer",
+            "Workspace Admin Console",
+            "Account Console",
+            "No hay forma de revocar permisos en la plataforma Databricks. El data engineer necesita clonar la tabla con los permisos actualizados"
+        ],
+        "answer": "Catalog Explorer",
+        "explanation": (
+            "En Catalog Explorer (Data Explorer) se gestionan los permisos de objetos en Unity Catalog.\n"
+            "Desde ahí se pueden conceder y revocar privilegios sobre tablas, schemas y catálogos."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q27_task_orchestration_service",
+        "question": (
+            "¿Cuál de los siguientes servicios puede usar un data engineer para task orchestration en la plataforma Databricks?"
+        ),
+        "options": [
+            "Delta Live Tables",
+            "Unity Catalog Lineage",
+            "Databricks Jobs",
+            "Databricks Connect"
+        ],
+        "answer": "Databricks Jobs",
+        "explanation": (
+            "Databricks Jobs permite orquestar tareas de procesamiento de datos definiendo dependencias entre tareas en forma de DAG.\n"
+            "Facilita ejecutar, programar y gestionar workflows completos dentro de la plataforma."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q28_streaming_default_trigger_interval",
+        "question": (
+            "Dada la siguiente query de Structured Streaming:\n\n"
+            "(spark.readStream\n"
+            "    .table(\"orders\")\n"
+            "    .writeStream\n"
+            "    .option(\"checkpointLocation\", checkpointPath)\n"
+            "    .table(\"Output_Table\")\n"
+            ")\n\n"
+            "¿Cuál de las siguientes opciones es el trigger Interval de esta query?"
+        ),
+        "options": [
+            "Cada medio segundo",
+            "La query se ejecutará en batch mode para procesar todos los datos disponibles de una vez, y después el trigger se detiene.",
+            "Cada medio minuto",
+            "Cada media hora"
+        ],
+        "answer": "Cada medio segundo",
+        "explanation": (
+            "Si no se especifica un trigger en Structured Streaming, Spark usa el valor por defecto.\n"
+            "El processingTime por defecto es 500 ms, equivalente a ejecutar un micro-batch cada medio segundo."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q29_storage_optimized_for_ad_hoc_queries",
+        "question": (
+            "Un analista ejecuta queries ad hoc frecuentes sobre un dataset grande de Delta Lake usando Databricks. Sin embargo, el analista está experimentando un rendimiento lento en las queries. "
+            "Necesitan conseguir respuestas rápidas e interactivas para exploratory analysis basándose en datos cacheados.\n\n"
+            "¿Qué tipo de instancia es la más adecuada para este workload?"
+        ),
+        "options": [
+            "Compute Optimized",
+            "Memory Optimized",
+            "Storage Optimized",
+            "General Purpose"
+        ],
+        "answer": "Storage Optimized",
+        "explanation": (
+            "Las instancias Storage Optimized aprovechan Delta caching y alto throughput de disco.\n"
+            "Son ideales para queries ad hoc e interactivas sobre grandes datasets, reduciendo la latencia de lectura."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q30_dlt_streaming_table_readstream",
+        "question": (
+            "Un data engineer en una empresa global de e-commerce tiene la tarea de construir un pipeline de analítica near real-time usando Delta Live Tables (DLT). "
+            "El objetivo es procesar continuamente clickstream data que registra interacciones de usuarios a través de múltiples sitios web regionales.\n\n"
+            "Los raw event data se ingieren desde edge services en dos ubicaciones principales:\n"
+            "1- Una Delta table registrada en Unity Catalog, ubicada en: ecommerce.analytics.raw_clickstream\n"
+            "2- Un bucket S3, donde los datos entrantes llegan como archivos Parquet, en la siguiente ruta: s3://ecommerce/analytics/clickstream/\n\n"
+            "Para soportar casos de uso near real-time como personalized product recommendations, fraud detection, y live performance dashboards, el data engineer necesita definir una streaming table dentro de un pipeline DLT. "
+            "Esta tabla debe ingerir continuamente nuevos registros a medida que llegan a la data source.\n\n"
+            "El engineer ha redactado los siguientes bloques de código candidatos usando el decorador @dlt.table y necesita identificar cuáles definen correctamente una streaming DLT table.\n\n"
+            "¿Cuál de los siguientes bloques de código crea correctamente una streaming table llamada clickstream_events?"
+        ),
+        "options": [
+            '@dlt.table(name = "clickstream_events")\ndef load_clickstream():\n    return spark.read.table("ecommerce.analytics.raw_clickstream")',
+            '@dlt.table(name = "clickstream_events")\ndef load_clickstream():\n    return spark.read.format("parquet").load("s3://ecommerce/analytics/clickstream/")',
+            '@dlt.table(name = "clickstream_events")\ndef load_clickstream():\n    return (spark.read\n        .format("cloudFiles")\n        .option("cloudFiles.format", "parquet")\n        .load("s3://ecommerce/analytics/clickstream/")\n    )',
+            '@dlt.table(name = "clickstream_events")\ndef load_clickstream():\n    return spark.readStream.table("ecommerce.analytics.raw_clickstream")'
+        ],
+        "answer": '@dlt.table(name = "clickstream_events")\ndef load_clickstream():\n    return spark.readStream.table("ecommerce.analytics.raw_clickstream")',
+        "explanation": (
+            "Para definir una streaming table en DLT se debe usar Structured Streaming.\n"
+            "spark.readStream.table(...) permite leer continuamente nuevos datos de una Delta table.\n"
+            "spark.read es batch y no crea una tabla streaming, por lo que no cumple el requisito near real-time."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q31_purge_stale_delta_files",
+        "question": (
+            "¿Cuál de los siguientes comandos puede usar un data engineer para purgar stale data files de una Delta table?"
+        ),
+        "options": [
+            "OPTIMIZE",
+            "DELETE",
+            "CLEAN",
+            "VACUUM"
+        ],
+        "answer": "VACUUM",
+        "explanation": (
+            "VACUUM elimina los data files obsoletos que ya no son referenciados por la tabla Delta después del retention period.\n"
+            "Se utiliza para limpiar almacenamiento tras operaciones como DELETE, MERGE o UPDATE."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q32_delta_transaction_log_format",
+        "question": (
+            "En tablas Delta Lake, ¿cuál de los siguientes es el formato principal de los archivos del transaction log?"
+        ),
+        "options": [
+            "Delta",
+            "JSON",
+            "XML",
+            "Parquet"
+        ],
+        "answer": "JSON",
+        "explanation": (
+            "El transaction log de Delta Lake se almacena en archivos JSON dentro de la carpeta _delta_log.\n"
+            "Los datos de la tabla se guardan en formato Parquet, pero el log de transacciones es JSON."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q33_delta_lake_description",
+        "question": (
+            "\"Una de las tecnologías fundacionales proporcionadas por Databricks Intelligence Platform es un formato de almacenamiento open-source, basado en ficheros, que aporta fiabilidad a los data lakes\"\n\n"
+            "¿Cuál de las siguientes tecnologías se describe en la afirmación anterior?"
+        ),
+        "options": [
+            "Apache Spark",
+            "Delta Lives Tables (DLT)",
+            "Delta Lake",
+            "Unity Catalog"
+        ],
+        "answer": "Delta Lake",
+        "explanation": (
+            "Delta Lake es un formato open source que añade un transaction log a archivos Parquet para soportar transacciones ACID.\n"
+            "Esto aporta fiabilidad y consistencia a los data lakes."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q34_dlt_expectation_drop_row",
+        "question": (
+            "Un data engineer ha definido la siguiente data quality constraint en un pipeline de Delta Live Tables:\n\n"
+            "CONSTRAINT valid_id EXPECT (id IS NOT NULL) ______\n\n"
+            "Rellena el espacio en blanco para que los registros que violen esta constraint se descarten (dropped) y se reporten en métricas"
+        ),
+        "options": [
+            "ON VIOLATION DROP ROW",
+            "ON VIOLATION DELETE ROW",
+            "No es necesario añadir la cláusula ON VIOLATION. Por defecto, los registros que violen la constraint serán descartados y reportados como inválidos en el event log",
+            "ON VIOLATION FAIL UPDATE"
+        ],
+        "answer": "ON VIOLATION DROP ROW",
+        "explanation": (
+            "En Delta Live Tables, ON VIOLATION DROP ROW elimina los registros que no cumplen la expectation.\n"
+            "Las violaciones se registran en métricas sin detener el pipeline."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q35_databricks_asset_bundle_targets",
+        "question": (
+            "¿Cuál es el propósito principal de la sección targets en el fichero databricks.yml de un Databricks Asset Bundle?"
+        ),
+        "options": [
+            "Listar las librerías externas requeridas por el bundle",
+            "Especificar diferentes deployment environments con sus respectivas configuraciones",
+            "Definir user roles y políticas de acceso para el workspace",
+            "Configurar la versión de Databricks Runtime"
+        ],
+        "answer": "Especificar diferentes deployment environments con sus respectivas configuraciones",
+        "explanation": (
+            "La sección targets en databricks.yml se utiliza para definir múltiples entornos de despliegue (por ejemplo, dev, staging y prod).\n"
+            "Cada target puede tener configuraciones específicas como paths del workspace, settings de clusters y variables por entorno.\n"
+            "Esto permite aislamiento entre entornos y flexibilidad en el deployment."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q36_gold_layer_description",
+        "question": (
+            "En la Medallion Architecture, ¿cuál de las siguientes afirmaciones describe mejor las tablas de la Gold layer?"
+        ),
+        "options": [
+            "Proporcionan agregaciones a nivel de negocio que impulsan analytics, machine learning y production applications",
+            "La estructura de la tabla en esta capa se parece a la estructura de la tabla del sistema origen con columnas de metadata adicionales como el load time y el input file name.",
+            "Representan una versión filtrada, limpia y enriquecida de los datos",
+            "Mantienen raw data ingerido desde varias fuentes"
+        ],
+        "answer": "Proporcionan agregaciones a nivel de negocio que impulsan analytics, machine learning y production applications",
+        "explanation": (
+            "La Gold layer contiene agregaciones a nivel de negocio preparadas para reporting, BI y machine learning.\n"
+            "Es la capa final consumida por usuarios y aplicaciones."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q37_left_join_students_enrollments",
+        "question": (
+            "Dadas las siguientes 2 tablas:\n\n"
+            "students\n"
+            "student_id | name  | age\n"
+            "U0001      | Adam  | 23\n"
+            "U0002      | Sarah | 19\n"
+            "U0003      | John  | 36\n\n"
+            "enrollments\n"
+            "course_id | student_id\n"
+            "C0055     | U0001\n"
+            "C0066     | U0001\n"
+            "C0077     | U0002\n\n"
+            "Rellena el espacio en blanco para que la siguiente query devuelva el resultado de abajo:\n\n"
+            "SELECT students.name, students.age, enrollments.course_id\n"
+            "FROM students\n"
+            "_____ enrollments\n"
+            "ON students.student_id = enrollments.student_id\n\n"
+            "Query result:\n"
+            "name  | age | course_id\n"
+            "Adam  | 23  | C0055\n"
+            "Adam  | 23  | C0066\n"
+            "Sarah | 19  | C0077\n"
+            "John  | 36  | NULL"
+        ),
+        "options": [
+            "ANTI JOIN",
+            "RIGHT JOIN",
+            "LEFT JOIN",
+            "INNER JOIN"
+        ],
+        "answer": "LEFT JOIN",
+        "explanation": (
+            "LEFT JOIN devuelve todas las filas de la tabla izquierda (students) y las coincidencias de la derecha (enrollments).\n"
+            "Si no hay coincidencia, las columnas de la derecha quedan en NULL, como ocurre con John."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q38_transform_array_lambda",
+        "question": (
+            "Rellena el siguiente espacio en blanco para incrementar el número de cursos en 1 para cada estudiante en la columna array students:\n\n"
+            "SELECT\n"
+            "    faculty_id,\n"
+            "    students,\n"
+            "    __________ AS new_totals\n"
+            "FROM faculties"
+        ),
+        "options": [
+            "TRANSFORM (students, total_courses + 1)",
+            "FILTER (students, i -> i.total_courses + 1)",
+            "TRANSFORM (students, i -> i.total_courses + 1)",
+            "FILTER (students, total_courses + 1)"
+        ],
+        "answer": "TRANSFORM (students, i -> i.total_courses + 1)",
+        "explanation": (
+            "TRANSFORM es una higher-order function que aplica una lambda a cada elemento de un array y devuelve un nuevo array.\n"
+            "Permite modificar cada elemento individualmente, como incrementar total_courses en 1."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q39_temporary_view_session_scope",
+        "question": (
+            "Un data engineer quiere crear un objeto relacional obteniendo datos de dos tablas. El objeto relacional solo se usará en la sesión actual. "
+            "Para ahorrar costes de almacenamiento, el data engineer quiere evitar copiar y almacenar datos físicos.\n\n"
+            "¿Cuál de los siguientes objetos relacionales debería crear el data engineer?"
+        ),
+        "options": [
+            "Managed table",
+            "Global Temporary view",
+            "View",
+            "Temporary view"
+        ],
+        "answer": "Temporary view",
+        "explanation": (
+            "Una temporary view es una tabla virtual sin datos físicos almacenados.\n"
+            "Solo existe durante la sesión de Spark y se elimina automáticamente al finalizarla."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q40_update_delta_discount",
+        "question": (
+            "El equipo de data engineering tiene una Delta table llamada products que contiene detalles de los productos, incluido el net price.\n\n"
+            "¿Cuál de los siguientes bloques de código aplicará un descuento del 50% a todos los productos cuyo precio sea mayor que 1000 y guardará el nuevo precio en la tabla?"
+        ),
+        "options": [
+            "SELECT price * 0.5 AS new_price FROM products WHERE price > 1000;",
+            "UPDATE products SET price = price * 0.5 WHERE price > 1000;",
+            "MERGE INTO products WHERE price > 1000 WHEN MATCHED UPDATE price = price * 0.5;",
+            "UPDATE products SET price = price * 0.5 WHERE price >= 1000;"
+        ],
+        "answer": "UPDATE products SET price = price * 0.5 WHERE price > 1000;",
+        "explanation": (
+            "UPDATE modifica directamente los registros de la tabla Delta que cumplen la condición.\n"
+            "Se aplica el descuento solo a los productos con precio estrictamente mayor a 1000."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q41_pyspark_agg_duplicate_keys",
+        "question": (
+            "Un data engineer en una empresa de HR analytics está desarrollando un pipeline PySpark para analizar métricas de salario por departamentos. "
+            "Escribieron la siguiente línea de código para calcular el total, el promedio y el conteo de salarios por departamento:\n\n"
+            "result_df = df.groupBy(\"department\").agg({\"salary\": \"sum\", \"salary\": \"avg\", \"salary\": \"count\"})\n\n"
+            "Tras ejecutar el código, observaron que el DataFrame resultante solo contiene un valor agregado en lugar de las tres métricas esperadas.\n\n"
+            "¿Cuál es la causa más probable de este problema?"
+        ),
+        "options": [
+            "El método agg() debe usar una lista de tuplas en lugar de un diccionario al agregar múltiples funciones.",
+            "Los diccionarios de Python no permiten claves duplicadas, por lo que solo se aplica la última agregación.",
+            "El método groupBy() debe ir precedido por un método select() para las columnas usadas en la agregación.",
+            "El método agg() solo soporta una función de agregación a la vez."
+        ],
+        "answer": "Los diccionarios de Python no permiten claves duplicadas, por lo que solo se aplica la última agregación.",
+        "explanation": (
+            "En Python, un diccionario no puede tener claves duplicadas.\n"
+            "Al repetir la clave 'salary', cada entrada sobrescribe la anterior y solo se ejecuta la última agregación (count)."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q42_audit_log_json_format",
+        "question": (
+            "¿Cuál de las siguientes opciones representa un ejemplo correcto de un audit log en Databricks para un evento createMetastoreAssignment?"
+        ),
+        "options": [
+            "[2021-08-24 13:46:24] INFO unityCatalog – createMetastoreAssignment – user@derar.cloud – workspace_id=30490590956351435170 metastore_id=abc123456-8398-4c25-91bb-b000b08739c7 default_catalog_name=main",
+            "version: \"2.0\"\ntimestamp: 1629775584891\nserviceName: unityCatalog\nactionName: createMetastoreAssignment\nuserIdentity:\n  email: user@derar.cloud\nrequestParams:\n  workspace_id: \"30490590956351435170\"\n  metastore_id: abc123456-8398-4c25-91bb-b000b08739c7\n  default_catalog_name: main",
+            "<log><version>2.0</version><timestamp>1629775584891</timestamp><serviceName>unityCatalog</serviceName><actionName>createMetastoreAssignment</actionName><userIdentity><email>user@derar.cloud</email></userIdentity><requestParams><workspace_id>30490590956351435170</workspace_id><metastore_id>abc123456-8398-4c25-91bb-b000b08739c7</metastore_id><default_catalog_name>main</default_catalog_name></requestParams></log>",
+            "{ \"version\": \"2.0\", \"timestamp\": 1629775584891, \"serviceName\": \"unityCatalog\", \"actionName\": \"createMetastoreAssignment\", \"userIdentity\": { \"email\": \"user@derar.cloud\" }, \"requestParams\": { \"workspace_id\": \"30490590956351435170\", \"metastore_id\": \"abc123456-8398-4c25-91bb-b000b08739c7\", \"default_catalog_name\": \"main\" } }"
+        ],
+        "answer": "{ \"version\": \"2.0\", \"timestamp\": 1629775584891, \"serviceName\": \"unityCatalog\", \"actionName\": \"createMetastoreAssignment\", \"userIdentity\": { \"email\": \"user@derar.cloud\" }, \"requestParams\": { \"workspace_id\": \"30490590956351435170\", \"metastore_id\": \"abc123456-8398-4c25-91bb-b000b08739c7\", \"default_catalog_name\": \"main\" } }",
+        "explanation": (
+            "Los audit logs de Databricks se entregan en formato JSON.\n"
+            "Los campos serviceName y actionName identifican el evento siguiendo la convención del Databricks REST API."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q43_streaming_trigger_available_now",
+        "question": (
+            "Dada la siguiente query de Structured Streaming:\n\n"
+            "(spark.table(\"orders\")\n"
+            "    .withColumn(\"total_after_tax\", col(\"total\")+col(\"tax\"))\n"
+            "    .writeStream\n"
+            "    .option(\"checkpointLocation\", checkpointPath)\n"
+            "    .outputMode(\"append\")\n"
+            "    .__________\n"
+            "    .table(\"new_orders\") )\n\n"
+            "Rellena el espacio en blanco para que la query ejecute múltiples micro-batches para procesar todos los datos disponibles y luego detenga el trigger."
+        ),
+        "options": [
+            'trigger(processingTime="0 seconds")',
+            'trigger(micro-batches=True)',
+            'trigger(availableNow=True)',
+            'trigger(once=True)'
+        ],
+        "answer": 'trigger(availableNow=True)',
+        "explanation": (
+            "trigger(availableNow=True) procesa todos los datos disponibles en múltiples micro-batches y se detiene automáticamente.\n"
+            "Se utiliza para ejecutar streaming en modo batch incremental."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q44_delta_sharing_identifier",
+        "question": (
+            "Durante la configuración de Delta Sharing con un partner externo, un data engineer pide al partner su sharing identifier.\n\n"
+            "¿Cuál de las siguientes opciones describe mejor el sharing identifier en el contexto de Databricks-to-Databricks Sharing?"
+        ),
+        "options": [
+            "Actúa como el authentication token para llamadas API con el endpoint del receptor",
+            "Proporciona una referencia única para el Unity Catalog metastore del receptor",
+            "Sirve como una public encryption key usada durante escrituras de datos en las tablas del partner",
+            "Identifica la dirección IP de red del partner para firewall whitelisting"
+        ],
+        "answer": "Proporciona una referencia única para el Unity Catalog metastore del receptor",
+        "explanation": (
+            "El sharing identifier es un identificador único del metastore de Unity Catalog del receptor.\n"
+            "Permite al proveedor conceder acceso a los datos compartidos en Databricks-to-Databricks Delta Sharing."
+        ),
+    },
+    {
+        "exam": 2,
+        "id": "q45_liquid_clustering_multi_column_filters",
+        "question": (
+            "Un equipo de data engineering está trabajando con una tabla de user activity events almacenada en Unity Catalog. Las queries a menudo incluyen filtros sobre múltiples columnas como user_id y event_date.\n\n"
+            "¿Qué técnica de data layout debería implementar el equipo para evitar table scans costosos?"
+        ),
+        "options": [
+            "Usar partitioning en la columna event_date.",
+            "Usar liquid clustering en la combinación de user_id y event_date",
+            "Usar partitioning en la columna user_id, junto con Z-order indexing en la columna event_date.",
+            "Usar Z-order indexing en user_id"
+        ],
+        "answer": "Usar liquid clustering en la combinación de user_id y event_date",
+        "explanation": (
+            "Liquid clustering optimiza progresivamente el layout físico basado en múltiples columnas de filtrado.\n"
+            "Permite data skipping eficiente cuando se filtra por user_id y event_date evitando full table scans."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q01_cloudflare_r2_delta_sharing_egress",
+        "question": (
+            "Una organización planea usar Delta Sharing para habilitar acceso a datasets grandes por múltiples clientes a través de AWS, Azure y GCP. "
+            "Un senior data engineer ha recomendado migrar el dataset a Cloudflare R2 object storage antes de iniciar el proceso de data sharing.\n\n"
+            "¿Qué beneficio ofrece Cloudflare R2 en esta configuración de Delta Sharing?"
+        ),
+        "options": [
+            "Elimina el coste de egress del proveedor cloud para transferencias de datos de salida",
+            "Proporciona una API estándar para evitar cloud vendor lock-in",
+            "Proporciona soporte nativo para dynamic data masking",
+            "Ofrece soporte integrado para streaming data con checkpointing automático"
+        ],
+        "answer": "Elimina el coste de egress del proveedor cloud para transferencias de datos de salida",
+        "explanation": (
+            "Cloudflare R2 elimina los costes de egress, reduciendo significativamente el coste al compartir datos entre clouds mediante Delta Sharing."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q01_cloudflare_r2_delta_sharing_egress",
+        "question": (
+            "Una organización planea usar Delta Sharing para habilitar acceso a grandes datasets por múltiples clientes a través de AWS, Azure y GCP. "
+            "Un senior data engineer ha recomendado migrar el dataset a Cloudflare R2 object storage antes de iniciar el proceso de data sharing.\n\n"
+            "¿Qué beneficio ofrece Cloudflare R2 en esta configuración de Delta Sharing?"
+        ),
+        "options": [
+            "Elimina el coste de egress del proveedor cloud para transferencias de datos de salida",
+            "Proporciona una API estándar para evitar cloud vendor lock-in",
+            "Proporciona soporte nativo para dynamic data masking",
+            "Ofrece soporte integrado para streaming data con checkpointing automático"
+        ],
+        "answer": "Elimina el coste de egress del proveedor cloud para transferencias de datos de salida",
+        "explanation": (
+            "Cloudflare R2 elimina los costes de egress, reduciendo significativamente el coste al compartir datos entre clouds mediante Delta Sharing."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q02_automatic_liquid_clustering_when_to_use",
+        "question": (
+            "Un equipo de data engineering está discutiendo la estrategia óptima de data layout en una tabla Delta gestionada en Unity Catalog en crecimiento. "
+            "Están considerando partitioning, Z-ordering y Liquid Clustering para mejorar el rendimiento de las consultas.\n\n"
+            "¿Qué escenario indica mejor que Automatic Liquid Clustering es la opción recomendada?"
+        ),
+        "options": [
+            "El equipo ha identificado clustering keys estables para la tabla.",
+            "La tabla experimenta filtros de consulta diversos y que cambian con frecuencia en múltiples columnas, con patrones de acceso impredecibles.",
+            "Ninguna de las opciones listadas es correcta. Automatic Liquid Clustering no puede aplicarse en tablas gestionadas.",
+            "La tabla se filtra intensivamente por un conjunto pequeño y consistente de rangos de fechas."
+        ],
+        "answer": "La tabla experimenta filtros de consulta diversos y que cambian con frecuencia en múltiples columnas, con patrones de acceso impredecibles.",
+        "explanation": (
+            "Automatic Liquid Clustering se adapta dinámicamente a patrones de consulta cambiantes reorganizando los datos según los filtros recientes. "
+            "Es especialmente útil cuando los predicados cambian frecuentemente entre múltiples columnas y no existe una clave de partición estable.\n\n"
+            "Partitioning funciona mejor con filtros predecibles (por ejemplo fechas), y ZORDER con columnas conocidas de alta cardinalidad. "
+            "Cuando el acceso es impredecible, Liquid Clustering evita tener que ajustar manualmente el layout."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q03_autoloader_incremental_technology",
+        "question": (
+            "¿Cuál de las siguientes tecnologías utiliza Auto Loader para cargar datos de forma incremental?"
+        ),
+        "options": [
+            "Spark Structured Streaming",
+            "Arquitectura multi-hop",
+            "COPY INTO",
+            "DEEP CLONE"
+        ],
+        "answer": "Spark Structured Streaming",
+        "explanation": (
+            "Auto Loader está basado en Spark Structured Streaming y expone una fuente de streaming llamada cloudFiles. "
+            "Gracias a ello puede detectar automáticamente nuevos archivos en el storage e ingerirlos incrementalmente."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q04_autoloader_schema_evolution_mode",
+        "question": (
+            "Un data engineer está configurando un stream de Databricks Auto Loader para ingerir datos JSON desde un bucket de S3. "
+            "El pipeline debe fallar cuando se detecten nuevas columnas en los datos entrantes, pero esas nuevas columnas deben seguir "
+            "añadiéndose al esquema para que las ejecuciones posteriores puedan reanudarse correctamente con el esquema actualizado. "
+            "Las columnas existentes deben conservar sus tipos de datos.\n\n"
+            "spark.readStream \\\n"
+            "    .format(\"cloudFiles\") \\\n"
+            "    .option(\"cloudFiles.format\", \"json\") \\\n"
+            "    .option(\"cloudFiles.schemaLocation\", \"s3://checkpoints/orders\") \\\n"
+            "    .option(\"cloudFiles.schemaEvolutionMode\", \"__________\") \\\n"
+            "    .load(\"s3://shop/raw/orders/json/\") \\\n"
+            ".writeStream \\\n"
+            "    .option(\"checkpointLocation\", \"s3://checkpoints/orders\") \\\n"
+            "    .start(\"orders_table\")\n\n"
+            "¿Qué opción completa correctamente el hueco para cumplir el requisito especificado?"
+        ),
+        "options": [
+            "addNewColumns",
+            "none",
+            "rescue",
+            "failOnNewColumns"
+        ],
+        "answer": "addNewColumns",
+        "explanation": (
+            "El modo addNewColumns es el comportamiento por defecto de Auto Loader. "
+            "Cuando aparece una nueva columna el stream falla, pero la columna se añade al esquema permitiendo reiniciar "
+            "y continuar el procesamiento sin cambiar tipos existentes."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q05_sql_warehouse_private_network",
+        "question": (
+            "Un data architect está diseñando una plataforma de datos híbrida que debe conectarse de forma segura a bases de datos on-premises. "
+            "Estas bases de datos deben consultarse usando SQL desde Databricks, y la plataforma debe permanecer dentro "
+            "de la red definida por la empresa por motivos de compliance.\n\n"
+            "¿Qué tipo de SQL Warehouse debería elegir el arquitecto para soportar esta arquitectura?"
+        ),
+        "options": [
+            "Pro SQL Warehouse",
+            "Serverless compute for notebooks",
+            "Classic SQL Warehouse",
+            "Serverless SQL Warehouse"
+        ],
+        "answer": "Pro SQL Warehouse",
+        "explanation": (
+            "Pro SQL Warehouses permiten conectividad segura a redes privadas definidas por la empresa (VPC/VNet) "
+            "y soportan arquitecturas híbridas con bases de datos on-premises. "
+            "Las opciones serverless están totalmente gestionadas por Databricks y no operan dentro de redes privadas del cliente."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q06_jobs_task_dependency",
+        "question": (
+            "En Databricks Jobs, ¿cuál de los siguientes enfoques puede usar un data engineer para configurar una dependencia lineal "
+            "entre Task A y Task B?"
+        ),
+        "options": [
+            "Pueden asignar a Task A un número de orden 1 y a Task B un número de orden 2",
+            "Pueden seleccionar Task A en el campo Depends On de la configuración de Task B",
+            "Pueden arrastrar y soltar visualmente una flecha desde Task A a Task B en el canvas del Job",
+            "Pueden configurar la dependencia a nivel de notebook usando la utilidad dbutils.jobs"
+        ],
+        "answer": "Pueden seleccionar Task A en el campo Depends On de la configuración de Task B",
+        "explanation": (
+            "El orden de ejecución de tareas en Databricks Jobs se define mediante el campo 'Depends On'. "
+            "Task B depende de Task A si se selecciona Task A dentro de este campo, estableciendo así la dependencia."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q07_declarative_etl_framework",
+        "question": (
+            "Databricks proporciona un framework ETL declarativo para construir pipelines de procesamiento de datos fiables y mantenibles, "
+            "manteniendo dependencias entre tablas y calidad de datos.\n\n"
+            "¿Cuál de las siguientes tecnologías se describe arriba?"
+        ),
+        "options": [
+            "Databricks Jobs",
+            "Unity Catalog Lineage",
+            "Delta Lake",
+            "Delta Live Tables"
+        ],
+        "answer": "Delta Live Tables",
+        "explanation": (
+            "Delta Live Tables es un framework declarativo para construir pipelines de datos fiables y mantenibles. "
+            "Gestiona automáticamente la orquestación de tareas, el clúster, el monitoreo, la calidad de datos y el manejo de errores."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q08_python_function_multiply",
+        "question": (
+            "¿Cuál de los siguientes bloques de código puede usar un data engineer para crear una función Python que multiplique dos enteros y devuelva el resultado?"
+        ),
+        "options": [
+            "fun multiply_numbers(num1, num2):\n    return num1 * num2",
+            "def multiply_numbers(num1, num2):\n    print(num1 * num2)",
+            "def multiply_numbers(num1, num2):\n    return num1 * num2",
+            "def fun: multiply_numbers(num1, num2):\n    return num1 * num2"
+        ],
+        "answer": "def multiply_numbers(num1, num2):\n    return num1 * num2",
+        "explanation": (
+            "En Python, una función se define usando la palabra clave 'def'. "
+            "Para devolver el resultado debe utilizarse 'return' y no 'print'.\n\n"
+            "Sintaxis:\n"
+            "def function_name(params):\n"
+            "    return params"
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q09_dab_resources_key",
+        "question": (
+            "Un data engineer está preparando un Databricks asset bundle para definir un job que ejecuta un notebook ubicado en "
+            "./src/my_notebook.py. Mientras escribe la configuración YAML, el engineer redacta lo siguiente:\n\n"
+            "bundle:\n"
+            "  name: my_bundle\n\n"
+            "__________:\n"
+            "  jobs:\n"
+            "    my_job:\n"
+            "      name: my_notebook_job\n"
+            "      tasks:\n"
+            "        - task_key: test_task\n"
+            "          existing_cluster_id: 1234-911320-xyzwpm999\n"
+            "          notebook_task:\n"
+            "            notebook_path: './src/my_notebook.py'\n\n"
+            "Para asegurar que el bundle sea válido y desplegable, ¿qué clave debería reemplazar correctamente el hueco anterior?"
+        ),
+        "options": [
+            "settings",
+            "workflows",
+            "resources",
+            "pipelines"
+        ],
+        "answer": "resources",
+        "explanation": (
+            "La sección 'resources' es donde se definen los objetos desplegables: jobs, pipelines, notebooks, clusters, etc. "
+            "Es el núcleo de lo que se despliega cuando se aplica el bundle.\n\n"
+            "Las otras opciones son incorrectas:\n"
+            "- settings no es una sección válida en Databricks Asset Bundles\n"
+            "- pipelines se usa para DLT pipelines\n"
+            "- workflows no se usa en la estructura databricks.yml"
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q10_use_schema_privilege",
+        "question": (
+            "Un data engineer usa la siguiente consulta SQL:\n\n"
+            "GRANT USE SCHEMA ON SCHEMA sales_db TO finance_team\n\n"
+            "¿Cuál de las siguientes opciones describe el beneficio del privilegio USE SCHEMA?"
+        ),
+        "options": [
+            "Es un prerrequisito para poder realizar cualquier acción en la base de datos",
+            "Otorga permisos completos sobre toda la base de datos",
+            "Otorga acceso de lectura a la base de datos",
+            "Otorga la capacidad de ver los objetos de la base de datos y su metadata"
+        ],
+        "answer": "Es un prerrequisito para poder realizar cualquier acción en la base de datos",
+        "explanation": (
+            "El privilegio USE SCHEMA (antes USAGE) no otorga permisos directos. "
+            "Sirve como prerrequisito para poder ejecutar acciones sobre objetos dentro del schema. "
+            "Además, es necesario otorgar USE CATALOG en el catálogo padre para permitir acceso en Unity Catalog."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q11_groupby_multiple_aggregations",
+        "question": (
+            "Un data engineer debe calcular tanto el salario total como el salario promedio de empleados, agrupados por su departamento. "
+            "Usan groupBy de PySpark y quieren aplicar múltiples agregaciones a cada grupo.\n\n"
+            "Completa el siguiente snippet de código:\n\n"
+            "result_df = df.groupBy(\"department\").__________(\n"
+            "    sum(\"salary\").alias(\"total_salary\"),\n"
+            "    avg(\"salary\").alias(\"average_salary\")\n"
+            ")\n\n"
+            "¿Qué función debe usarse para completar el código?"
+        ),
+        "options": [
+            "agg",
+            "filter",
+            "withColumn",
+            "select"
+        ],
+        "answer": "agg",
+        "explanation": (
+            "La función agg() se utiliza después de groupBy() cuando se aplican una o más funciones de agregación a datos agrupados. "
+            "En este caso se calcula suma y media, por lo que agg() es la correcta."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q12_grant_permissions_catalog_explorer",
+        "question": (
+            "¿Qué parte de la plataforma Databricks puede usar un data engineer para otorgar permisos sobre tablas a usuarios?"
+        ),
+        "options": [
+            "Data Studio",
+            "Workspace Admin Console",
+            "Account console",
+            "Catalog Explorer"
+        ],
+        "answer": "Catalog Explorer",
+        "explanation": (
+            "Catalog Explorer permite gestionar permisos sobre objetos de datos en Unity Catalog, "
+            "incluyendo otorgar privilegios sobre tablas y bases de datos a usuarios o grupos."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q13_git_folders_not_supported_task",
+        "question": (
+            "¿Cuál de las siguientes tareas no está soportada por Git folders y debe realizarse en tu proveedor Git?"
+        ),
+        "options": [
+            "Crear y hacer checkout de ramas para trabajo de desarrollo.",
+            "Comparar visualmente diferencias al hacer commit.",
+            "Eliminar ramas",
+            "Clonar, hacer push o hacer pull desde un repositorio Git remoto."
+        ],
+        "answer": "Eliminar ramas",
+        "explanation": (
+            "Databricks Repos (Git folders) no soporta eliminar ramas ni crear pull requests; "
+            "esas operaciones deben realizarse en el proveedor Git (GitHub, GitLab, Bitbucket...). "
+            "Las demás operaciones básicas sí pueden hacerse desde Databricks."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q14_merge_into_avoid_duplicates",
+        "question": (
+            "Un junior data engineer suele usar el comando INSERT INTO para escribir datos en una tabla Delta. "
+            "Un senior data engineer sugiere usar otro comando que evita escribir registros duplicados.\n\n"
+            "¿Cuál de los siguientes comandos es el sugerido por el senior data engineer?"
+        ),
+        "options": [
+            "UPDATE",
+            "COPY INTO",
+            "MERGE INTO",
+            "INSERT OR OVERWRITE"
+        ],
+        "answer": "MERGE INTO",
+        "explanation": (
+            "MERGE INTO permite combinar inserciones, actualizaciones y borrados basados en una tabla origen hacia una tabla Delta destino. "
+            "Con MERGE INTO puedes evitar insertar registros duplicados al escribir en tablas Delta."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q15_ctas_not_true_statement",
+        "question": (
+            "¿Cuál de las siguientes afirmaciones NO es cierta sobre sentencias CTAS?"
+        ),
+        "options": [
+            "Las sentencias CTAS soportan declaración manual del schema",
+            "CTAS significa CREATE TABLE AS SELECT",
+            "Con CTAS, los datos se insertan durante la creación de la tabla",
+            "CTAS infiere automáticamente el schema a partir de los resultados de la query"
+        ],
+        "answer": "Las sentencias CTAS soportan declaración manual del schema",
+        "explanation": (
+            "CREATE TABLE AS SELECT (CTAS) crea y rellena tablas Delta usando el resultado de una SELECT. "
+            "CTAS infiere automáticamente el esquema desde los resultados de la query y no soporta la declaración manual del schema."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q16_dlt_triggered_development_mode",
+        "question": (
+            "El equipo de data engineer tiene un pipeline de DLT que actualiza todas las tablas una vez y luego se detiene. "
+            "Los recursos de cómputo del pipeline continúan ejecutándose para permitir pruebas rápidas.\n\n"
+            "¿Cuál de las siguientes opciones describe mejor los modos de ejecución de este pipeline de DLT?"
+        ),
+        "options": [
+            "El pipeline de DLT se ejecuta en modo Triggered Pipeline bajo Production mode.",
+            "El pipeline de DLT se ejecuta en modo Continuous Pipeline bajo Production mode.",
+            "El pipeline de DLT se ejecuta en modo Continuous Pipeline bajo Development mode.",
+            "El pipeline de DLT se ejecuta en modo Triggered Pipeline bajo Development mode."
+        ],
+        "answer": "El pipeline de DLT se ejecuta en modo Triggered Pipeline bajo Development mode.",
+        "explanation": (
+            "Triggered pipelines se ejecutan una vez y luego se detienen. "
+            "En Development mode, el clúster permanece activo durante un periodo de tiempo para permitir testing e iteración rápida, "
+            "y desactiva los reintentos automáticos para ayudar a detectar errores rápidamente."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q17_medallion_silver_to_gold_streaming",
+        "question": (
+            "Dada la siguiente query de Structured Streaming:\n\n"
+            "(spark.readStream\n"
+            "    .table(\"cleanedOrders\")\n"
+            "    .groupBy(\"productCategory\")\n"
+            "    .agg(sum(\"totalWithTax\"))\n"
+            "    .writeStream\n"
+            "    .option(\"checkpointLocation\", checkpointPath)\n"
+            "    .outputMode(\"complete\")\n"
+            "    .table(\"aggregatedOrders\")\n"
+            ")\n\n"
+            "¿Cuál de las siguientes opciones describe mejor el propósito de esta query en una Medallion Architecture?"
+        ),
+        "options": [
+            "La query está realizando un salto de una tabla Bronze a una tabla Silver",
+            "La query está realizando un salto de la capa Silver a una tabla Gold",
+            "La query está realizando ingesta de datos raw en una tabla Bronze",
+            "La query está realizando transferencia de datos desde una tabla Gold hacia una aplicación de producción"
+        ],
+        "answer": "La query está realizando un salto de la capa Silver a una tabla Gold",
+        "explanation": (
+            "La query de Structured Streaming agrega datos limpios de la tabla silver 'cleanedOrders' "
+            "y escribe resultados agregados a nivel de negocio en la tabla gold 'aggregatedOrders'. "
+            "Esto representa una transformación Silver → Gold en la arquitectura Medallion."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q18_vacuum_retention_threshold",
+        "question": (
+            "Un data engineer observó que hay data files sin uso en el directorio de una tabla Delta. "
+            "Ejecutaron el comando VACUUM sobre esta tabla; sin embargo, solo algunos de esos data files sin uso han sido eliminados.\n\n"
+            "¿Cuál de las siguientes opciones podría explicar por qué solo algunos de los data files sin uso han sido eliminados tras ejecutar el comando VACUUM?"
+        ),
+        "options": [
+            "Los data files eliminados eran más grandes que el umbral de tamaño por defecto. Mientras que los archivos restantes son más pequeños que el umbral de tamaño por defecto y no pueden eliminarse.",
+            "Los data files eliminados eran más antiguos que el umbral de retención por defecto. Mientras que los archivos restantes son más recientes que el umbral de retención por defecto y no pueden eliminarse.",
+            "Los data files eliminados eran más pequeños que el umbral de tamaño por defecto. Mientras que los archivos restantes son más grandes que el umbral de tamaño por defecto y no pueden eliminarse.",
+            "Los data files eliminados eran más recientes que el umbral de retención por defecto. Mientras que los archivos restantes son más antiguos que el umbral de retención por defecto y no pueden eliminarse."
+        ],
+        "answer": "Los data files eliminados eran más antiguos que el umbral de retención por defecto. Mientras que los archivos restantes son más recientes que el umbral de retención por defecto y no pueden eliminarse.",
+        "explanation": (
+            "Ejecutar el comando VACUUM en una tabla Delta elimina los data files sin uso que sean más antiguos que un periodo de retención de datos especificado. "
+            "Los archivos sin uso que sean más recientes que el umbral de retención por defecto se mantienen intactos."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q19_lakehouse_definition",
+        "question": (
+            "¿Cuál de las siguientes opciones describe mejor un Data Lakehouse?"
+        ),
+        "options": [
+            "Sistema de gestión de datos fiable con garantías transaccionales para los datos estructurados de la organización.",
+            "Sistema único, flexible y de alto rendimiento que soporta cargas de trabajo de data engineering, analítica y machine learning.",
+            "Plataforma que escala workloads de data lake para organizaciones sin invertir en hardware on-premises.",
+            "Plataforma que ayuda a reducir los costes de almacenar ficheros de datos en formatos abiertos de la organización en la nube."
+        ],
+        "answer": "Sistema único, flexible y de alto rendimiento que soporta cargas de trabajo de data engineering, analítica y machine learning.",
+        "explanation": (
+            "La Databricks Intelligence Platform es una plataforma unificada de analítica lakehouse que combina los mejores elementos de data lakes y data warehouses. "
+            "En el lakehouse, puedes trabajar en data engineering, analytics y AI en una única plataforma."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q20_autoloader_vs_copyinto_when_use",
+        "question": (
+            "Un data engineer necesita determinar si usar Auto Loader o el comando COPY INTO para cargar ficheros de datos de entrada de forma incremental.\n\n"
+            "¿En cuál de los siguientes escenarios debería el data engineer usar Auto Loader en lugar del comando COPY INTO?"
+        ),
+        "options": [
+            "Si van a ingerir ficheros en el orden de millones o más a lo largo del tiempo",
+            "Si van a cargar un subconjunto de ficheros re-subidos",
+            "Si el schema de los datos no va a evolucionar con frecuencia",
+            "Si van a ingerir un número pequeño de ficheros en el orden de miles"
+        ],
+        "answer": "Si van a ingerir ficheros en el orden de millones o más a lo largo del tiempo",
+        "explanation": (
+            "If you're going to ingest files in the order of thousands, you can use COPY INTO. "
+            "If you are expecting files in the order of millions or more over time, use Auto Loader.\n"
+            "If your data schema is going to evolve frequently, Auto Loader provides better primitives around schema inference and evolution."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q21_create_schema_usage",
+        "question": "¿Cuál de las siguientes afirmaciones describe mejor el uso del comando CREATE SCHEMA?",
+        "options": [
+            "Se usa para crear una base de datos",
+            "Se usa para inferir y almacenar el schema en \"cloudFiles.schemaLocation\"",
+            "Se usa para crear el schema de una tabla (nombres de columnas y datatype)",
+            "Se usa para hacer merge del schema al escribir datos en una tabla destino"
+        ],
+        "answer": "Se usa para crear una base de datos",
+        "explanation": (
+            "CREATE SCHEMA es un alias de la sentencia CREATE DATABASE. "
+            "Aunque el uso de SCHEMA y DATABASE es intercambiable, se prefiere SCHEMA."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q22_global_temp_view",
+        "question": (
+            "Un data engineer quiere crear un objeto relacional a partir de datos de dos tablas. "
+            "El objeto relacional debe ser usado por otros data engineers en otras sesiones únicamente en el mismo clúster. "
+            "Para ahorrar en costes de almacenamiento, el data engineer quiere evitar copiar y almacenar datos físicos.\n\n"
+            "¿Cuál de los siguientes objetos relacionales debería crear el data engineer?"
+        ),
+        "options": [
+            "Global Temporary view",
+            "Temporary view",
+            "External table",
+            "View"
+        ],
+        "answer": "Global Temporary view",
+        "explanation": (
+            "Para evitar copiar y almacenar datos físicos, el data engineer debe crear un objeto view. "
+            "Una view en Databricks es una tabla virtual sin datos físicos, solo una SQL query guardada.\n"
+            "Una Global Temporary view puede accederse entre sesiones dentro del mismo clúster y se almacena "
+            "en la base de datos especial global_temp."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q23_optimize_idempotent",
+        "question": (
+            "Un data engineer tiene una tabla Delta grande sin particionar que estaba experimentando problemas de rendimiento. "
+            "Ejecutan el comando OPTIMIZE, que compactó correctamente muchos archivos pequeños en archivos más grandes. "
+            "Sin embargo, a pesar de esta compactación, las consultas posteriores sobre la tabla continúan siendo lentas. "
+            "Para mejorar el rendimiento aún más, vuelven a ejecutar el comando OPTIMIZE pero observan que no hay cambios en los tamaños de los data files.\n\n"
+            "¿Qué explica más probablemente el comportamiento durante la segunda ejecución?"
+        ),
+        "options": [
+            "La tabla Delta no está particionada, por lo que OPTIMIZE no tiene efecto al ejecutarse dos veces",
+            "Se debe ejecutar un comando VACUUM antes de volver a ejecutar el comando OPTIMIZE.",
+            "El comando OPTIMIZE tiene un periodo de retención de 7 días entre ejecuciones consecutivas.",
+            "El comando OPTIMIZE no modifica archivos ya compactados"
+        ],
+        "answer": "El comando OPTIMIZE no modifica archivos ya compactados",
+        "explanation": (
+            "OPTIMIZE es idempotente en Delta Lake. Una vez que los small files ya han sido compactados en archivos de tamaño óptimo, "
+            "ejecutar OPTIMIZE de nuevo no los modificará a menos que aparezcan nuevos small files. "
+            "Por lo tanto, la segunda ejecución no produce cambios en los tamaños de los archivos."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q24_sql_warehouse_cluster_size",
+        "question": (
+            "Un data engineer quiere aumentar el cluster size de un Databricks SQL warehouse existente.\n\n"
+            "¿Cuál de las siguientes opciones es el beneficio de incrementar el cluster size de Databricks SQL warehouses?"
+        ),
+        "options": [
+            "Reduce la latencia de la ejecución de las queries",
+            "Acelera el start up time del SQL warehouse",
+            "El cluster size de los SQL warehouses no es configurable. En su lugar, pueden incrementar el número de clusters",
+            "Reduce el coste ya que los clusters grandes usan Spot instances"
+        ],
+        "answer": "Reduce la latencia de la ejecución de las queries",
+        "explanation": (
+            "Incrementar el cluster size del SQL Warehouse aumenta los recursos de cómputo (CPU/memoria), permitiendo que las queries "
+            "se ejecuten más rápido y, por lo tanto, reduciendo la latencia de las queries."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q25_databricks_sql_alert_destinations",
+        "question": (
+            "¿Cuál de los siguientes destinos de alertas NO está soportado en Databricks SQL?"
+        ),
+        "options": [
+            "SMS",
+            "Slack",
+            "Microsoft Teams",
+            "Webhook"
+        ],
+        "answer": "SMS",
+        "explanation": (
+            "SMS no está soportado como destino de alertas en Databricks SQL. "
+            "Los destinos de alertas soportados incluyen email, webhook, Slack y Microsoft Teams."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q26_delta_sharing_external_vendor",
+        "question": (
+            "Una organización sanitaria almacena datos sensibles de pacientes dentro de Databricks Unity Catalog. "
+            "Necesitan compartir estos datos con un proveedor externo de analítica, que no usa Databricks.\n\n"
+            "¿Cuál es el método más seguro y eficiente para habilitar este acceso a los datos?"
+        ),
+        "options": [
+            "Descargar los datos como ficheros Excel protegidos y subirlos vía SFTP",
+            "Crear una stored view en la base de datos para uso externo",
+            "Almacenar los datos en una external table para acceso directo",
+            "Usar Delta Sharing con el open sharing protocol"
+        ],
+        "answer": "Usar Delta Sharing con el open sharing protocol",
+        "explanation": (
+            "Delta Sharing comparte datos de forma segura entre plataformas usando un protocolo abierto. "
+            "Permite que sistemas externos (incluso no-Databricks) consulten los datos en tiempo real sin copiar ni exportar ficheros."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q27_git_update_from_remote",
+        "question": (
+            "¿Cuál de las siguientes operaciones puede usar un data engineer para actualizar una carpeta Git desde su repositorio Git remoto?"
+        ),
+        "options": [
+            "Pull",
+            "Clone",
+            "Commit",
+            "Push"
+        ],
+        "answer": "Pull",
+        "explanation": (
+            "Git Pull hace fetch y descarga el contenido desde un repositorio remoto y actualiza el repositorio local para que coincida con él. "
+            "Clone crea una copia nueva, Commit guarda localmente, y Push sube los cambios locales al repositorio remoto."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q28_dlt_stream_function_required",
+        "question": (
+            "Un data engineer tiene la siguiente query en un pipeline de Delta Live Tables:\n\n"
+            "CREATE STREAMING TABLE sales_silver\n"
+            "AS\n"
+            "SELECT store_id, total + tax AS total_after_tax\n"
+            "FROM sales_bronze\n\n"
+            "El pipeline falla al iniciar debido a un error en esta query.\n\n"
+            "¿Cuál de los siguientes cambios debería realizarse en esta query para iniciar correctamente el pipeline de DLT?"
+        ),
+        "options": [
+            "CREATE STREAMING TABLE sales_silver AS SELECT store_id, total + tax AS total_after_tax FROM STREAMING(sales_bronze)",
+            "CREATE STREAM TABLE sales_silver AS SELECT store_id, total + tax AS total_after_tax FROM STREAM(LIVE.sales_bronze)",
+            "CREATE STREAMING TABLE sales_silver AS SELECT store_id, total + tax AS total_after_tax FROM STREAMING sales_bronze",
+            "CREATE STREAMING TABLE sales_silver AS SELECT store_id, total + tax AS total_after_tax FROM STREAM(sales_bronze)"
+        ],
+        "answer": "CREATE STREAMING TABLE sales_silver AS SELECT store_id, total + tax AS total_after_tax FROM STREAM(sales_bronze)",
+        "explanation": (
+            "En Delta Live Tables, cuando se lee desde otra tabla streaming dentro del mismo pipeline, "
+            "debes usar la función STREAM(). La sintaxis CREATE STREAMING TABLE define la tabla streaming destino "
+            "y STREAM(source_table) habilita el procesamiento incremental."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q29_dlt_triggered_production_mode",
+        "question": (
+            "El equipo de data engineer tiene un pipeline de DLT que actualiza todas las tablas una vez y luego se detiene. "
+            "Los recursos de cómputo del pipeline terminan cuando el pipeline se detiene.\n\n"
+            "¿Cuál de las siguientes opciones describe mejor los modos de ejecución de este pipeline de DLT?"
+        ),
+        "options": [
+            "El pipeline de DLT se ejecuta en modo Continuous Pipeline bajo Production mode.",
+            "El pipeline de DLT se ejecuta en modo Triggered Pipeline bajo Development mode.",
+            "El pipeline de DLT se ejecuta en modo Triggered Pipeline bajo Production mode.",
+            "El pipeline de DLT se ejecuta en modo Continuous Pipeline bajo Development mode."
+        ],
+        "answer": "El pipeline de DLT se ejecuta en modo Triggered Pipeline bajo Production mode.",
+        "explanation": (
+            "Triggered pipelines se ejecutan una vez y luego se detienen. En Production mode, los recursos de cómputo se terminan "
+            "cuando el pipeline se detiene y se habilitan la recuperación automática y los reintentos."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q30_notebook_variable_explorer",
+        "question": (
+            "Un data engineer quiere validar que todos los DataFrames de Spark y Pandas en su notebook están correctamente "
+            "definidos. Quieren inspeccionar la estructura y los nombres de las columnas de un vistazo, con acceso inmediato al "
+            "detalle completo del schema de cada DataFrame.\n\n"
+            "¿Cuál de las siguientes funcionalidades soportaría mejor este objetivo?"
+        ),
+        "options": [
+            "Notebook Environment",
+            "Notebook Variable Explorer",
+            "Spark UI",
+            "dbutils.variables.summary()"
+        ],
+        "answer": "Notebook Variable Explorer",
+        "explanation": (
+            "El Variable Explorer en notebooks de Databricks muestra todas las variables incluyendo DataFrames de Spark y Pandas, "
+            "su schema, nombres de columnas y metadata de un vistazo, con el detalle completo del schema disponible de forma interactiva."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q31_delta_primary_file_format",
+        "question": (
+            "En tablas Delta Lake, ¿cuál de los siguientes es el formato principal de los data files?"
+        ),
+        "options": [
+            "JSON",
+            "Parquet",
+            "Delta",
+            "Ambos, Parquet y JSON"
+        ],
+        "answer": "Parquet",
+        "explanation": (
+            "Delta Lake almacena los datos reales en ficheros Parquet, mientras que el transaction log (_delta_log) se almacena en formato JSON."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q32_medallion_bronze_layer",
+        "question": (
+            "En la Medallion Architecture, ¿cuál de las siguientes afirmaciones describe mejor la capa Bronze?"
+        ),
+        "options": [
+            "Representa una versión filtrada, limpiada y enriquecida de los datos",
+            "Mantiene datos raw ingeridos desde múltiples fuentes",
+            "Mantiene datos que alimentan analítica, machine learning y aplicaciones de producción",
+            "Proporciona una versión agregada de datos a nivel de negocio"
+        ],
+        "answer": "Mantiene datos raw ingeridos desde múltiples fuentes",
+        "explanation": (
+            "Las tablas Bronze almacenan datos raw, sin procesar, exactamente como se ingieren desde los sistemas origen (ficheros, streams, bases de datos, etc.). "
+            "Silver contiene datos limpios/enriquecidos, y Gold contiene datos agregados a nivel de negocio."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q33_dlt_view_object_type",
+        "question": (
+            "Un data engineer está usando Databricks Delta Live Tables (DLT) para definir una view de pedidos recientes. "
+            "El engineer ha escrito el siguiente código Python para crear la view:\n\n"
+            "@dlt.view\n"
+            "def recent_orders():\n"
+            "    return spark.read.table(\"orders\").filter(\"year > 2025\")\n\n"
+            "Basado en esta implementación, ¿qué tipo de objeto se creará cuando se ejecute este código?"
+        ),
+        "options": [
+            "Temporary view",
+            "Stored view",
+            "Materialized view",
+            "Streaming view"
+        ],
+        "answer": "Temporary view",
+        "explanation": (
+            "En Delta Live Tables, los objetos creados con @dlt.view son temporary pipeline views. "
+            "Solo existen durante la ejecución del pipeline y no se persisten en el catálogo como las tablas."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q34_join_spill_memory_optimized",
+        "question": (
+            "Un equipo de data engineering está procesando un pipeline ETL a gran escala que implica hacer join entre múltiples datasets grandes, "
+            "cada uno con cientos de columnas y miles de millones de registros. Durante la fase de join, observan que los Spark "
+            "executors están haciendo spill repetidamente a disco, y el rendimiento se degrada significativamente debido a un shuffling excesivo.\n\n"
+            "¿Qué tipo de optimización de recursos debería priorizar el equipo para mejorar el rendimiento de este job?"
+        ),
+        "options": [
+            "GPU Optimized",
+            "Storage Optimized",
+            "Compute Optimized",
+            "Memory Optimized"
+        ],
+        "answer": "Memory Optimized",
+        "explanation": (
+            "Los joins grandes en Spark son memory-intensive porque los datos del shuffle deben mantenerse en memoria. "
+            "Si los executors hacen spill a disco, aumentar memoria (instancias memory-optimized) reduce los spills y el overhead de shuffle, "
+            "mejorando significativamente el rendimiento."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q35_python_if_invalid_syntax",
+        "question": (
+            "Un data engineer ha desarrollado un bloque de código para reprocesar completamente los datos basándose en la siguiente condición if en Python:\n\n"
+            "if process_mode = \"init\" and not is_table_exist:\n"
+            "    print(\"Start processing ...\")\n\n"
+            "Este bloque de código devuelve un error de sintaxis inválida.\n\n"
+            "¿Cuál de los siguientes cambios debería hacerse en el bloque de código para corregir este error?"
+        ),
+        "options": [
+            "if process_mode = \"init\" and is_table_exist = False:\n    print(\"Start processing ...\")",
+            "if (process_mode = \"init\") and (not is_table_exist):\n    print(\"Start processing ...\")",
+            "if process_mode == \"init\" and not is_table_exist:\n    print(\"Start processing ...\")",
+            "if process_mode = \"init\" & not is_table_exist:\n    print(\"Start processing ...\")"
+        ],
+        "answer": "if process_mode == \"init\" and not is_table_exist:\n    print(\"Start processing ...\")",
+        "explanation": (
+            "En Python, las comparaciones requieren '==' y no '='. "
+            "'=' es asignación y provoca un error de sintaxis dentro de condiciones. "
+            "Los operadores lógicos usan 'and' y la negación usa 'not'."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q36_dlt_expect_on_violation_fail",
+        "question": (
+            "Un data engineer ha definido el siguiente data quality constraint en un pipeline de Delta Live Tables:\n\n"
+            "CONSTRAINT valid_id EXPECT (id IS NOT NULL) __________\n\n"
+            "Rellena el hueco anterior para que los registros que violen este constraint hagan que el pipeline falle."
+        ),
+        "options": [
+            "No es necesario añadir la cláusula ON VIOLATION. Por defecto, los registros que violan el constraint hacen fallar el pipeline.",
+            "ON VIOLATION FAIL UPDATE",
+            "ON VIOLATION FAIL PIPELINE",
+            "ON VIOLATION FAIL"
+        ],
+        "answer": "ON VIOLATION FAIL UPDATE",
+        "explanation": (
+            "En las expectations de Delta Live Tables, ON VIOLATION FAIL UPDATE hace que el pipeline falle cuando aparecen registros inválidos. "
+            "El pipeline se detiene y requiere corregir los datos o la lógica antes de volver a ejecutarlo."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q37_create_table_using_jdbc",
+        "question": (
+            "Rellena el hueco inferior para crear correctamente una tabla en Databricks usando datos de una base de datos PostgreSQL existente:\n\n"
+            "CREATE TABLE employees\n"
+            "USING __________\n"
+            "OPTIONS (\n"
+            "  url \"jdbc:postgresql:dbserver\",\n"
+            "  dbtable \"employees\"\n"
+            ")"
+        ),
+        "options": [
+            "org.apache.spark.sql.jdbc",
+            "dbserver",
+            "postgresql",
+            "DELTA"
+        ],
+        "answer": "org.apache.spark.sql.jdbc",
+        "explanation": (
+            "Spark SQL usa el data source JDBC (org.apache.spark.sql.jdbc) para conectarse a bases de datos relacionales externas "
+            "como PostgreSQL, MySQL o SQL Server y crear tablas basadas en sus datos."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q38_query_spark_sql_table_pyspark",
+        "question": (
+            "En PySpark, ¿cuál de los siguientes comandos puedes usar para consultar la tabla Delta employees creada en Spark SQL?"
+        ),
+        "options": [
+            "Las tablas de Spark SQL no pueden accederse desde PySpark",
+            "spark.sql(\"employees\")",
+            "pyspark.sql.read(SELECT * FROM employees)",
+            "spark.table(\"employees\")"
+        ],
+        "answer": "spark.table(\"employees\")",
+        "explanation": (
+            "spark.table() devuelve una tabla de Spark SQL como un DataFrame de PySpark, permitiendo acceso directo a tablas creadas en Spark SQL."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q39_repair_failed_job_run",
+        "question": (
+            "Un data engineer tiene un Job con múltiples tasks que tarda más de 2 horas en completarse. "
+            "En la última ejecución, la task final falló inesperadamente.\n\n"
+            "¿Cuál de las siguientes acciones puede realizar el data engineer para completar este Job Run minimizando el tiempo de ejecución?"
+        ),
+        "options": [
+            "Pueden hacer repair de este Job Run para que solo se re-ejecuten las tasks que fallaron",
+            "Necesitan borrar el Run fallido y lanzar un nuevo Run para el Job",
+            "Pueden mantener el Run fallido y simplemente iniciar un nuevo Run para el Job",
+            "Pueden ejecutar el Job en Production mode que reintenta automáticamente la ejecución en caso de errores"
+        ],
+        "answer": "Pueden hacer repair de este Job Run para que solo se re-ejecuten las tasks que fallaron",
+        "explanation": (
+            "La funcionalidad Repair Run permite re-ejecutar solo las tasks fallidas y las tasks dependientes, evitando re-ejecutar las tasks exitosas y minimizando el tiempo de ejecución."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q40_job_cluster_production_recommendation",
+        "question": (
+            "Para jobs de producción, ¿cuál de los siguientes tipos de clúster se recomienda utilizar?"
+        ),
+        "options": [
+            "Job clusters",
+            "Production clusters",
+            "All-purpose clusters",
+            "On-premises clusters"
+        ],
+        "answer": "Job clusters",
+        "explanation": (
+            "Los Job Clusters son clústeres dedicados creados para una ejecución específica de un job y se terminan automáticamente cuando el job finaliza. "
+            "Proporcionan aislamiento, fiabilidad y eficiencia de costes, por lo que son la opción recomendada para workloads de producción."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q41_job_cluster_notebook_output_limit",
+        "question": (
+            "Un data engineer está desarrollando un pipeline de datos automatizado en Databricks, que incluye varios notebooks ejecutados como parte de un job programado. "
+            "Uno de estos notebooks realiza data profiling extensivo y genera una gran cantidad de output textual para propósitos de validación. "
+            "Tras múltiples ejecuciones exitosas, el job de repente empieza a fallar sin cambios en la lógica del código ni en el volumen de datos de entrada.\n\n"
+            "Tras investigar, el engineer sospecha que el problema puede estar relacionado con output excesivo generado durante la ejecución del notebook, "
+            "lo que está haciendo que el job cluster alcance un límite impuesto por el sistema.\n\n"
+            "Para prevenir fallos de ejecución del notebook debido al tamaño del output, ¿cuál es la cantidad máxima de output que puede manejar un job cluster?"
+        ),
+        "options": [
+            "10 MB",
+            "15 MB",
+            "25 MB",
+            "30 MB"
+        ],
+        "answer": "30 MB",
+        "explanation": (
+            "Los job clusters de Databricks tienen un límite máximo de tamaño de output del notebook de 30 MB. "
+            "Si un notebook produce más output que este límite, el job run puede fallar aunque la lógica y los datos sean correctos."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q42_databricks_customer_data_location",
+        "question": (
+            "¿Cuál de las siguientes ubicaciones aloja completamente los datos del cliente?"
+        ),
+        "options": [
+            "Control plane",
+            "Databricks-managed cluster",
+            "Customer's cloud account",
+            "Databricks account"
+        ],
+        "answer": "Customer's cloud account",
+        "explanation": (
+            "En la arquitectura Databricks Lakehouse, los datos del cliente residen en el data plane dentro de la propia cuenta cloud del cliente "
+            "(por ejemplo, AWS S3, Azure Data Lake Storage o Google Cloud Storage). El control plane gestiona metadata y servicios, "
+            "pero no almacena los datos reales del cliente."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q43_spark_kafka_stream_read",
+        "question": (
+            "Se le ha asignado a un data engineer consumir un stream de eventos desde un topic de Kafka llamado events_topic, "
+            "que está alojado en un Kafka broker remoto en host:port.\n\n"
+            "¿Cuál de los siguientes snippets de código establece correctamente un streaming DataFrame en PySpark para leer desde este topic de Kafka?"
+        ),
+        "options": [
+            """eventsStream = (spark.readStream
+        .format("kafka")
+        .option("kafka.bootstrap.servers", "host:port")
+        .option("subscribe", "events_topic")
+        .option("startingOffsets", "latest")
+        .load()
+    )""",
+            """eventsStream = (spark.readStream
+        .format("cloud_files")
+        .option("cloudFiles.format", "kafka")
+        .option("cloudFiles.bootstrap.servers", "host:port")
+        .option("cloudFiles.subscribe", "events_topic")
+        .option("cloudFiles.startingOffsets", "latest")
+        .load()
+    )""",
+            """eventsStream = spark.readStream.kafka("host:port", "events_topic", "latest")""",
+            """eventsStream = spark.readStream.format("kafka").load("host:port", "events_topic", "latest")"""
+        ],
+        "answer": """eventsStream = (spark.readStream
+        .format("kafka")
+        .option("kafka.bootstrap.servers", "host:port")
+        .option("subscribe", "events_topic")
+        .option("startingOffsets", "latest")
+        .load()
+    )""",
+        "explanation": (
+            "Para leer desde Kafka usando Structured Streaming en PySpark, debes usar readStream con format('kafka') y configurar "
+            "las opciones kafka.bootstrap.servers, subscribe y startingOffsets. "
+            "Auto Loader (cloudFiles) es solo para ingesta de ficheros, no para streams de Kafka."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q44_liquid_clustering_predictive_optimization",
+        "question": (
+            "¿Cómo determina Automatic Liquid Clustering qué columnas usar como clustering keys en una tabla Delta gestionada por Unity Catalog?"
+        ),
+        "options": [
+            "Determina automáticamente las clustering keys óptimas basándose en el tipo y el orden de definición de columnas en el schema.",
+            "Selecciona inteligentemente las clustering keys a partir de columnas de clustering predefinidas especificadas durante la creación de la tabla.",
+            "Aprovecha estrategias avanzadas de sampling para aleatorizar la selección de columnas tras balancear uniformemente los datos entre todos los ficheros.",
+            "Aprovecha Predictive Optimization para elegir clustering keys óptimas basándose en el comportamiento observado de las queries."
+        ],
+        "answer": "Aprovecha Predictive Optimization para elegir clustering keys óptimas basándose en el comportamiento observado de las queries.",
+        "explanation": (
+            "Automatic Liquid Clustering optimiza dinámicamente el data layout analizando patrones de acceso de las queries y estadísticas de metadata. "
+            "A través de Predictive Optimization, Databricks selecciona y actualiza automáticamente las clustering keys para mejorar el rendimiento sin tuning manual."
+        ),
+    },
+    {
+        "exam": 3,
+        "id": "q45_spot_instances_best_use_case",
+        "question": (
+            "¿Qué escenario es el más adecuado para usar spot instances en Databricks?"
+        ),
+        "options": [
+            "Análisis interactivo de datos por parte de business analysts",
+            "Workloads transaccionales con altas demandas de concurrencia",
+            "Jobs de batch processing no críticos con capacidad de reintento",
+            "Procesamiento de streams en tiempo real con requisitos estrictos de SLA"
+        ],
+        "answer": "Jobs de batch processing no críticos con capacidad de reintento",
+        "explanation": (
+            "Las spot instances pueden ser terminadas en cualquier momento por el proveedor cloud. "
+            "Por ello, son más adecuadas para workloads fault-tolerant y reintentables como batch processing no crítico. "
+            "No son apropiadas para workloads de baja latencia, interactivos o sensibles a SLA."
+        ),
+    },
 ]

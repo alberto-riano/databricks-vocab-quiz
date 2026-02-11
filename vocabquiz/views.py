@@ -5,11 +5,11 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
 from .vocab import VOCAB
-from .databricks_quiz import DATABRICKS_QUIZ
+from .databricks_quiz import DATABRICKS_QUIZ  # EN
 
-# IMPORT opcional: si aún no lo tienes completo, no rompa la app
+# databricks_quiz_es.py también exporta DATABRICKS_QUIZ, lo importamos con alias:
 try:
-    from .databricks_quiz_es import DATABRICKS_QUIZ_ES
+    from .databricks_quiz_es import DATABRICKS_QUIZ as DATABRICKS_QUIZ_ES  # ES
 except Exception:
     DATABRICKS_QUIZ_ES = []
 
@@ -118,27 +118,43 @@ def check_answer(request):
 
 
 # ---------------------------
-# DATABRICKS (exam=1|2|3|all|1es|2es|3es)
+# DATABRICKS (exam=1|2|3|all|1es|2es|3es|alles)
 # ---------------------------
 def _normalize_exam(raw: str) -> str:
     raw = (raw or "all").strip().lower()
-    allowed = {"1", "2", "3", "all", "1es", "2es", "3es"}
+    allowed = {"1", "2", "3", "all", "1es", "2es", "3es", "alles"}
     return raw if raw in allowed else "all"
 
 
+def _is_es(exam: str) -> bool:
+    return exam.endswith("es") or exam == "alles"
+
+
+def _base_exam_number(exam: str):
+    """
+    Devuelve 1/2/3 o None si exam es all/alles
+    """
+    if exam in {"all", "alles"}:
+        return None
+    return int(exam.replace("es", ""))
+
+
 def _get_dbx_bank(exam: str):
-    # Si exam termina en "es", tiramos del banco español
-    return DATABRICKS_QUIZ_ES if exam.endswith("es") else DATABRICKS_QUIZ
+    """
+    Si piden ES y existe banco ES, úsalo; si no, cae a EN.
+    """
+    if _is_es(exam) and DATABRICKS_QUIZ_ES:
+        return DATABRICKS_QUIZ_ES
+    return DATABRICKS_QUIZ
 
 
 def _get_dbx_questions_for_exam(exam: str):
     bank = _get_dbx_bank(exam)
+    ex_num = _base_exam_number(exam)
 
-    if exam == "all":
+    if ex_num is None:
         return bank
 
-    # "1es" -> 1
-    ex_num = int(exam.replace("es", ""))
     return [q for q in bank if int(q.get("exam", 0)) == ex_num]
 
 
@@ -150,13 +166,17 @@ def _get_dbx_pool(request, exam: str):
     return key, seen, remaining, questions
 
 
-def _q_text(q: dict):
+def _pick_text(q: dict, is_es: bool):
     """
-    Normaliza claves para que el frontend siempre reciba:
-      - question
-      - explanation
-    aunque el banco sea ES con question_es/explanation_es.
+    Devuelve (question, explanation) usando:
+      - ES: question_es/explanation_es (fallback a EN)
+      - EN: question/explanation (fallback a ES)
     """
+    if is_es:
+        question = q.get("question_es") or q.get("question") or ""
+        explanation = q.get("explanation_es") or q.get("explanation") or ""
+        return question, explanation
+
     question = q.get("question") or q.get("question_es") or ""
     explanation = q.get("explanation") or q.get("explanation_es") or ""
     return question, explanation
@@ -179,12 +199,13 @@ def dbx_next(request):
     options = list(q.get("options", []))
     random.shuffle(options)
 
-    question, _ = _q_text(q)
+    is_es = _is_es(exam)
+    question, _ = _pick_text(q, is_es)
 
     return JsonResponse({
         "done": False,
         "type": "dbx-mcq",
-        "exam": exam,
+        "exam": exam,  # <-- importante: para que el frontend pueda mandar exam en /check/
         "id": q.get("id", str(idx)),
         "question": question,
         "options": options,
@@ -203,19 +224,23 @@ def dbx_check(request):
 
     qid = (data.get("id") or "").strip()
     picked = (data.get("picked") or "").strip()
+    exam = _normalize_exam(data.get("exam") or "all")
 
-    # Buscar por id: primero EN, luego ES
-    q = next((x for x in DATABRICKS_QUIZ if x.get("id") == qid), None)
-    if q is None:
-        q = next((x for x in DATABRICKS_QUIZ_ES if x.get("id") == qid), None)
+    bank = _get_dbx_bank(exam)
+    q = next((x for x in bank if x.get("id") == qid), None)
+
+    # fallback por si el banco ES está incompleto y falta ese id
+    if q is None and bank is not DATABRICKS_QUIZ:
+        q = next((x for x in DATABRICKS_QUIZ if x.get("id") == qid), None)
 
     if q is None:
         return JsonResponse({"ok": False, "error": "Question not found"}, status=404)
 
-    correct = q.get("answer", "")
+    correct = q["answer"]
     ok = (picked == correct)
 
-    _, explanation = _q_text(q)
+    is_es = _is_es(exam)
+    _, explanation = _pick_text(q, is_es)
 
     return JsonResponse({
         "ok": ok,
@@ -228,15 +253,17 @@ def dbx_check(request):
 @require_http_methods(["GET"])
 def dbx_reset(request):
     """
-    /api/dbx/reset/?exam=1|2|3|all|1es|2es|3es
+    /api/dbx/reset/?exam=1|2|3|all|1es|2es|3es|alles
+    - all/alles => borra progreso de todos
+    - 1/1es => borra solo ese
     """
     exam = _normalize_exam(request.GET.get("exam", "all"))
 
-    if exam == "all":
+    if exam in {"all", "alles"}:
         for k in list(request.session.keys()):
             if k.startswith("seen_dbx_exam_"):
                 del request.session[k]
-        return JsonResponse({"ok": True, "exam": "all"})
+        return JsonResponse({"ok": True, "exam": exam})
 
     key = f"seen_dbx_exam_{exam}"
     if key in request.session:
