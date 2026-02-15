@@ -2727,6 +2727,294 @@ DATABRICKS_QUIZ = [
             "They are not appropriate for low-latency, interactive, or SLA-sensitive workloads."
         ),
     },
+    {
+        "exam": 4,
+        "id": "q01_allpurpose_vs_job_clusters",
+        "question": (
+            "Which of the following best describes the difference between all-purpose clusters and job clusters in Databricks?"
+        ),
+        "options": [
+            "All-purpose clusters are for collaborative, interactive use and persist across sessions; job clusters are created for a single run and terminate after completion",
+            "All-purpose clusters store data, while job clusters manage metadata and job triggers",
+            "Job clusters support SQL only, while all-purpose clusters support Python and Scala",
+            "Job clusters allow multiple users to edit notebooks interactively, while all-purpose clusters are limited to automated jobs",
+            "All-purpose clusters are serverless, while job clusters require manual configuration"
+        ],
+        "answer": "All-purpose clusters are for collaborative, interactive use and persist across sessions; job clusters are created for a single run and terminate after completion",
+        "explanation": (
+            "This question tests the conceptual difference between compute types in Databricks.\n\n"
+    
+            "All-purpose clusters are shared, reusable clusters designed for interactive workloads such as development, exploration, "
+            "and collaboration. They persist across sessions and allow multiple users to run notebooks interactively.\n\n"
+    
+            "Job clusters are ephemeral clusters automatically created for a specific job run and terminated once the job finishes. "
+            "They provide isolation and cost efficiency, making them ideal for automated production pipelines.\n\n"
+    
+            "Incorrect options explanation:\n"
+            "- Clusters do NOT store data nor manage metadata; data is stored in cloud storage and metadata in Unity Catalog/Hive metastore.\n"
+            "- Both cluster types support multiple languages (Python, Scala, SQL, R), not only SQL.\n"
+            "- Interactive editing is supported by all-purpose clusters, not job clusters.\n"
+            "- Serverless is a separate compute concept and not the distinction between these two cluster types."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q02_sql_udf_format_name",
+        "question": (
+            "A data engineer wants to create a user-defined function (UDF) in Databricks using SQL. "
+            "The function should concatenate a first name and last name, capitalize each part, and return the full name.\n\n"
+            "Which of the following statements correctly defines this function?"
+        ),
+        "options": [
+            "CREATE FUNCTION format_name(fname STRING, lname STRING)\nRETURNS STRING\nAS 'SELECT UPPER(fname) || \" \" || UPPER(lname)';",
+            "CREATE FUNCTION format_name(fname STRING, lname STRING)\nRETURNS STRING\nUSING INITCAP(fname) || INITCAP(lname);",
+            "CREATE OR REPLACE FUNCTION format_name(fname STRING, lname STRING)\nRETURNS STRING\nRETURN INITCAP(fname) || ' ' || INITCAP(lname);",
+            "CREATE TEMPORARY FUNCTION format_name AS (fname STRING, lname STRING) -> INITCAP(fname) + ' ' + INITCAP(lname);",
+            "CREATE OR REPLACE FUNCTION format_name(fname, lname)\nRETURN INITCAP(fname) || ' ' || INITCAP(lname);"
+        ],
+        "answer": "CREATE OR REPLACE FUNCTION format_name(fname STRING, lname STRING)\nRETURNS STRING\nRETURN INITCAP(fname) || ' ' || INITCAP(lname);",
+        "explanation": (
+            "This is the correct syntax for creating a SQL UDF in Databricks. It uses CREATE OR REPLACE FUNCTION, "
+            "explicitly defines the input parameters with their types, specifies the return type with RETURNS STRING, "
+            "and includes a valid SQL expression with RETURN.\n\n"
+
+            "Key rules for SQL UDFs in Databricks:\n"
+            "- You must declare parameter names and types.\n"
+            "- You must specify the return type with RETURNS <type>.\n"
+            "- The function must return a valid SQL expression using the RETURN keyword.\n"
+            "- String concatenation is performed using ||, not +.\n"
+            "- SQL UDFs cannot include full SQL SELECT statements or reference tables.\n"
+            "- Temporary or lambda-style syntax is not supported in standard SQL UF declarations.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- AS 'SELECT ...' is invalid because Spark SQL UDF bodies are not defined using embedded SELECT strings.\n"
+            "- USING is not part of Spark SQL UDF syntax (looks like legacy Hive/external language syntax).\n"
+            "- CREATE TEMPORARY FUNCTION ... -> is Scala/Python-style lambda syntax, not SQL UDF syntax, and + is invalid for strings.\n"
+            "- Missing data types is invalid because parameters must explicitly declare types.\n\n"
+
+            "The function takes two string inputs, applies INITCAP() to capitalize each name, concatenates them with a space, "
+            "and returns the formatted full name."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q03_dlt_triggered_mode_cost_optimization",
+        "question": (
+            "A company runs a Delta Live Tables (DLT) pipeline to process IoT sensor data from manufacturing equipment. "
+            "New data arrives in cloud storage approximately every 3 to 4 hours. The team needs to process this data reliably "
+            "but does not require real-time insights. They are also looking to minimize compute costs by avoiding unnecessary "
+            "cluster usage between pipeline runs.\n\n"
+            "Which DLT pipeline mode best suits this use case?"
+        ),
+        "options": [
+            "Triggered mode",
+            "Real-time mode",
+            "Streaming with Auto Loader mode",
+            "Continuous mode",
+            "Interactive mode"
+        ],
+        "answer": "Triggered mode",
+        "explanation": (
+            "Triggered mode runs the pipeline in discrete executions only when manually started or on a schedule. "
+            "After processing the available data, compute resources are stopped automatically. This makes it the most "
+            "cost-effective option for periodic batch ingestion scenarios where low latency is not required.\n\n"
+
+            "DLT pipeline modes:\n"
+            "- Continuous mode: runs indefinitely and constantly checks for new data, designed for low-latency real-time processing. "
+            "This keeps clusters running and therefore increases compute cost.\n"
+            "- Triggered mode: processes available data in batches and shuts down compute after completion, minimizing cost.\n\n"
+
+            "Why this scenario fits Triggered mode:\n"
+            "- Data arrives only every 3–4 hours (not continuous streaming)\n"
+            "- Real-time insights are not required\n"
+            "- Cost optimization is important\n"
+            "- Reliable batch processing is needed\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Real-time mode: not an actual DLT configuration option; it's just a conceptual processing style.\n"
+            "- Streaming with Auto Loader mode: Auto Loader is an ingestion technique, not a pipeline execution mode.\n"
+            "- Continuous mode: designed for always-on streaming and would unnecessarily keep compute resources running.\n"
+            "- Interactive mode: refers to notebook development usage, not a DLT pipeline execution strategy.\n\n"
+
+            "Therefore, Triggered mode is ideal because it processes periodic data reliably while spinning up compute only when needed, "
+            "reducing operational cost for this IoT ingestion workload."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q03_dlt_triggered_mode_cost_optimization",
+        "question": (
+            "A company runs a Delta Live Tables (DLT) pipeline to process IoT sensor data from manufacturing equipment. "
+            "New data arrives in cloud storage approximately every 3 to 4 hours. The team needs to process this data reliably "
+            "but does not require real-time insights. They are also looking to minimize compute costs by avoiding unnecessary "
+            "cluster usage between pipeline runs.\n\n"
+            "Which DLT pipeline mode best suits this use case?"
+        ),
+        "options": [
+            "Triggered mode",
+            "Real-time mode",
+            "Streaming with Auto Loader mode",
+            "Continuous mode",
+            "Interactive mode"
+        ],
+        "answer": "Triggered mode",
+        "explanation": (
+            "Triggered mode runs the pipeline in discrete executions only when manually started or on a schedule. "
+            "After processing the available data, compute resources are stopped automatically. This makes it the most "
+            "cost-effective option for periodic batch ingestion scenarios where low latency is not required.\n\n"
+
+            "DLT pipeline modes:\n"
+            "- Continuous mode: runs indefinitely and constantly checks for new data, designed for low-latency real-time processing. "
+            "This keeps clusters running and therefore increases compute cost.\n"
+            "- Triggered mode: processes available data in batches and shuts down compute after completion, minimizing cost.\n\n"
+
+            "Why this scenario fits Triggered mode:\n"
+            "- Data arrives only every 3–4 hours (not continuous streaming)\n"
+            "- Real-time insights are not required\n"
+            "- Cost optimization is important\n"
+            "- Reliable batch processing is needed\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Real-time mode: not an actual DLT configuration option; it's just a conceptual processing style.\n"
+            "- Streaming with Auto Loader mode: Auto Loader is an ingestion technique, not a pipeline execution mode.\n"
+            "- Continuous mode: designed for always-on streaming and would unnecessarily keep compute resources running.\n"
+            "- Interactive mode: refers to notebook development usage, not a DLT pipeline execution strategy.\n\n"
+
+            "Therefore, Triggered mode is ideal because it processes periodic data reliably while spinning up compute only when needed, "
+            "reducing operational cost for this IoT ingestion workload."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q04_structured_streaming_trigger_processing_timee",
+        "question": (
+            "A data engineer is building a Spark Structured Streaming pipeline to process IoT sensor data. "
+            "The team wants to process any new data from the source every 60 seconds using a micro-batch approach. "
+            "The engineer writes the following code:\n\n"
+            "query = (spark.readStream\n"
+            "    .format(\"delta\")\n"
+            "    .load(\"/mnt/sensor_bronze\")\n"
+            "    .writeStream\n"
+            "    .trigger(_____)\n"
+            "    .format(\"delta\")\n"
+            "    .option(\"checkpointLocation\", \"/mnt/checkpoints/silver\")\n"
+            "    .start(\"/mnt/sensor_silver\"))\n\n"
+            "Which of the following should be used to correctly complete the trigger configuration?"
+        ),
+        "options": [
+            "Trigger.Continuous(\"60 seconds\")",
+            "Trigger.ProcessingTime(\"60000\")",
+            "Trigger.AvailableNow(\"60 seconds\")",
+            "Trigger.ProcessingTime(\"1 minute\")",
+            "Trigger.Once()"
+        ],
+        "answer": "Trigger.ProcessingTime(\"1 minute\")",
+        "explanation": (
+            "In Spark Structured Streaming, the trigger determines how frequently data is processed.\n\n"
+
+            "The requirement is to run the query every 60 seconds using micro-batches. "
+            "The correct configuration is Trigger.ProcessingTime(\"1 minute\"), which schedules a new micro-batch "
+            "at a fixed interval and processes any new data that has arrived since the previous batch.\n\n"
+
+            "Why this option is correct:\n"
+            "- Trigger.ProcessingTime(\"1 minute\") executes a micro-batch every 60 seconds.\n"
+            "- It is the standard trigger for periodic batch-style streaming workloads.\n"
+            "- Spark checks for new data at each interval and processes it if available.\n"
+            "- Supports full Structured Streaming functionality such as aggregations, joins, and watermarking.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Trigger.Continuous(\"60 seconds\") uses continuous processing mode, not micro-batching, "
+            "and is designed for ultra-low latency rather than scheduled execution.\n"
+            "- Trigger.ProcessingTime(\"60000\") is invalid because Spark expects a duration string "
+            "like \"60 seconds\" or \"1 minute\", not a raw numeric string.\n"
+            "- Trigger.AvailableNow() processes all available data in multiple micro-batches and then stops; "
+            "it does not run repeatedly every 60 seconds.\n"
+            "- Trigger.Once() processes available data a single time and exits, without recurring execution.\n\n"
+
+            "Continuous processing attempts near real-time execution and does not follow a fixed schedule, "
+            "and it has limited support for operations compared to micro-batch mode. "
+            "Therefore, for scheduled periodic ingestion every minute, ProcessingTime is the correct trigger."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q05_git_branch_behind",
+        "question": (
+            "Two data engineers are working on the same notebook in a Databricks Repo. One engineer commits and "
+            "pushes changes to the remote branch. The other engineer, unaware of this update, tries to push their own "
+            "changes without pulling first. They receive an error from Git stating that their branch is behind.\n\n"
+            "Why is this error occurring, and how should the engineer resolve it?"
+        ),
+        "options": [
+            "They committed the notebook with the wrong Git user settings and should configure Git credentials again.",
+            "The remote branch has new commits they haven’t pulled; they must perform a Git Pull to merge before pushing.",
+            "Databricks does not support simultaneous editing in Repos, so the notebook must be locked for exclusive use.",
+            "Their local cluster is out of sync with the control plane, and they need to restart it to apply Git changes.",
+            "The engineer tried to push to a read-only branch and must request write access from the repo owner."
+        ],
+        "answer": "The remote branch has new commits they haven’t pulled; they must perform a Git Pull to merge before pushing.",
+        "explanation": (
+            "Git prevents pushing if the local branch is behind the remote branch. Another user pushed new commits, "
+            "so the local history is outdated. Allowing the push would overwrite someone else’s work.\n\n"
+
+            "The correct workflow is:\n"
+            "1) Pull the latest changes from the remote repository\n"
+            "2) Merge them into the local branch (and resolve conflicts if necessary)\n"
+            "3) Push the updated branch\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Wrong Git credentials would cause an authentication error, not a 'branch behind' error.\n"
+            "- Databricks Repos DO support collaborative editing; Git manages consistency via merges.\n"
+            "- Cluster state has nothing to do with Git history or repository synchronization.\n"
+            "- A read-only branch would produce a permission error, not a divergence error.\n\n"
+
+            "Git enforces this rule to avoid accidental overwrites and maintain commit history integrity. "
+            "The solution is always to synchronize with the remote branch (git pull), resolve conflicts if they appear, "
+            "and only then push the changes."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q06_delta_acid_transactions_benefits",
+        "question": (
+            "What is a key benefit of ACID transactions in Delta Lake?\n"
+            "(Choose 2 Choices)"
+        ),
+        "options": [
+            "They allow faster query execution using Delta caching",
+            "They automatically compact small Parquet files",
+            "They remove the need for schema enforcement",
+            "They ensure data consistency during concurrent reads and writes",
+            "They guarantee that write operations are either fully committed or rolled back"
+        ],
+        "answer": [
+            "They ensure data consistency during concurrent reads and writes",
+            "They guarantee that write operations are either fully committed or rolled back"
+        ],
+        "explanation": (
+            "Delta Lake implements full ACID transaction guarantees to provide reliability in distributed environments, "
+            "especially when multiple users or jobs interact with the same table simultaneously.\n\n"
+
+            "ACID properties provided by Delta Lake:\n"
+            "- Atomicity: A write operation either fully succeeds or is completely rolled back. If a job fails mid-operation, "
+            "no partial or corrupted data is committed.\n"
+            "- Consistency: Each transaction moves the table from one valid state to another.\n"
+            "- Isolation: Concurrent reads and writes do not interfere; readers always see a consistent snapshot of the data.\n"
+            "- Durability: Once committed, data remains permanently stored even after failures.\n\n"
+
+            "Why the correct answers are correct:\n"
+            "- Consistent snapshots allow safe concurrent reads and writes without conflicts.\n"
+            "- Transactions guarantee all-or-nothing writes, preventing partial updates during failures.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Delta caching improves performance but is unrelated to ACID guarantees.\n"
+            "- File compaction is handled by OPTIMIZE, not ACID transactions.\n"
+            "- Schema enforcement is a separate Delta Lake feature and still required with ACID.\n\n"
+
+            "ACID guarantees are critical for operations like MERGE, UPDATE, and DELETE where concurrent data correctness matters."
+        ),
+    },
+
 
 ]
 
