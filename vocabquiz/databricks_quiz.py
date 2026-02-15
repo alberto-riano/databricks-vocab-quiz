@@ -2842,50 +2842,6 @@ DATABRICKS_QUIZ = [
     },
     {
         "exam": 4,
-        "id": "q03_dlt_triggered_mode_cost_optimization",
-        "question": (
-            "A company runs a Delta Live Tables (DLT) pipeline to process IoT sensor data from manufacturing equipment. "
-            "New data arrives in cloud storage approximately every 3 to 4 hours. The team needs to process this data reliably "
-            "but does not require real-time insights. They are also looking to minimize compute costs by avoiding unnecessary "
-            "cluster usage between pipeline runs.\n\n"
-            "Which DLT pipeline mode best suits this use case?"
-        ),
-        "options": [
-            "Triggered mode",
-            "Real-time mode",
-            "Streaming with Auto Loader mode",
-            "Continuous mode",
-            "Interactive mode"
-        ],
-        "answer": "Triggered mode",
-        "explanation": (
-            "Triggered mode runs the pipeline in discrete executions only when manually started or on a schedule. "
-            "After processing the available data, compute resources are stopped automatically. This makes it the most "
-            "cost-effective option for periodic batch ingestion scenarios where low latency is not required.\n\n"
-
-            "DLT pipeline modes:\n"
-            "- Continuous mode: runs indefinitely and constantly checks for new data, designed for low-latency real-time processing. "
-            "This keeps clusters running and therefore increases compute cost.\n"
-            "- Triggered mode: processes available data in batches and shuts down compute after completion, minimizing cost.\n\n"
-
-            "Why this scenario fits Triggered mode:\n"
-            "- Data arrives only every 3–4 hours (not continuous streaming)\n"
-            "- Real-time insights are not required\n"
-            "- Cost optimization is important\n"
-            "- Reliable batch processing is needed\n\n"
-
-            "Why the other options are incorrect:\n"
-            "- Real-time mode: not an actual DLT configuration option; it's just a conceptual processing style.\n"
-            "- Streaming with Auto Loader mode: Auto Loader is an ingestion technique, not a pipeline execution mode.\n"
-            "- Continuous mode: designed for always-on streaming and would unnecessarily keep compute resources running.\n"
-            "- Interactive mode: refers to notebook development usage, not a DLT pipeline execution strategy.\n\n"
-
-            "Therefore, Triggered mode is ideal because it processes periodic data reliably while spinning up compute only when needed, "
-            "reducing operational cost for this IoT ingestion workload."
-        ),
-    },
-    {
-        "exam": 4,
         "id": "q04_structured_streaming_trigger_processing_timee",
         "question": (
             "A data engineer is building a Spark Structured Streaming pipeline to process IoT sensor data. "
@@ -3015,6 +2971,748 @@ DATABRICKS_QUIZ = [
         ),
     },
 
+    {
+        "exam": 4,
+        "id": "q07_delta_sharing_limitation_read_only",
+        "question": (
+            "Which of the following is a limitation of Delta Sharing?"
+        ),
+        "options": [
+            "Recipients must have access to a Databricks workspace to query shared data.",
+            "Delta sharing only enables sharing of data. Other databricks assets cannot be shared",
+            "Recipients can only access data in Parquet format.",
+            "Both provider and recipient must be on the same cloud provider.",
+            "Recipients can only query shared data in read-only mode."
+        ],
+        "answer": "Recipients can only query shared data in read-only mode.",
+        "explanation": (
+            "The key limitation of Delta Sharing is that recipients get read-only access: they can query/consume the shared "
+            "data, but they cannot modify it or write back changes to the provider’s tables.\n\n"
+            "Why the correct option is correct:\n"
+            "- Read-only is fundamental to the sharing model: the provider remains the source of truth, and recipients consume "
+            "a governed, secure share without being able to update the provider’s data.\n\n"
+            "Why the other options are incorrect:\n"
+            "- “Recipients must have access to a Databricks workspace …” is false: external recipients (e.g., Tableau, pandas, "
+            "Power BI) can use the Open Sharing protocol without Databricks.\n"
+            "- “Delta sharing only enables sharing of data … other assets cannot be shared” is not a universal limitation: it can "
+            "be true for Open Sharing, but Databricks-to-Databricks sharing can support sharing other assets (for example notebooks, "
+            "dashboards, ML models, and volumes). This is a protocol distinction, not a core limitation of Delta Sharing.\n"
+            "- “Recipients can only access data in Parquet format” is incorrect: Delta Sharing is built around Delta tables, not raw "
+            "Parquet-only access.\n"
+            "- “Both provider and recipient must be on the same cloud provider” is incorrect: cross-cloud and cross-region sharing is supported. "
+            "The main consideration may be potential egress costs, but that’s not a functional limitation of Delta Sharing.\n\n"
+            "Summary:\n"
+            "Delta Sharing enables secure, live, governed access to data across workspaces, organizations, and clouds. The primary limitation "
+            "is that recipients can only consume/query the data in read-only mode."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q08_pyspark_sql_temp_view_query",
+        "question": (
+            "A data engineer is working in a Databricks notebook using PySpark. They have registered a temporary view "
+            "named transactions_view and want to retrieve all rows where the amount is greater than 1000 using SQL.\n\n"
+            "Which of the following Python code snippets correctly executes this SQL query and returns a Spark DataFrame?"
+        ),
+        "options": [
+            "spark.query(\"SELECT * FROM transactions_view WHERE amount > 1000\")",
+            "spark.read.sql(\"SELECT * FROM transactions_view WHERE amount > 1000\")",
+            "sqlContext.read(\"SELECT * FROM transactions_view WHERE amount > 1000\")",
+            "spark.sql(\"SELECT * FROM transactions_view WHERE amount > 1000\")",
+            "transactions_view.sql(\"SELECT * FROM transactions_view WHERE amount > 1000\")"
+        ],
+        "answer": "spark.sql(\"SELECT * FROM transactions_view WHERE amount > 1000\")",
+        "explanation": (
+            "spark.sql() is the correct way to execute a SQL query against a registered temporary view in PySpark. "
+            "It sends the SQL statement to the Spark engine and returns the result as a Spark DataFrame.\n\n"
+
+            "How this works:\n"
+            "- A DataFrame can be registered as a temporary view.\n"
+            "- Spark SQL queries can then reference the view name exactly like a table.\n"
+            "- spark.sql() executes the SQL query and returns a DataFrame that can be transformed or displayed.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- spark.query(...) does not exist and raises an AttributeError.\n"
+            "- spark.read.sql(...) is invalid because spark.read is for loading data sources, not executing SQL queries.\n"
+            "- sqlContext.read(...) reads files (Parquet/JSON/etc.), not SQL statements.\n"
+            "- transactions_view.sql(...) assumes the view is an object with a .sql() method, which it is not.\n\n"
+
+            "Example correct usage:\n"
+            "spark.sql(\"SELECT * FROM transactions_view WHERE amount > 1000\")\n\n"
+
+            "This returns a Spark DataFrame that can be further processed using DataFrame APIs or displayed."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q09_temp_view_session_only_no_storage",
+        "question": (
+            "A data analyst is exploring user behavior data in a Databricks notebook to identify unusual clickstream "
+            "patterns. They need to use the result of a complex query several times throughout the notebook. Instead of re-"
+            "writing the query multiple times, they want to find an alternate solution.\n\n"
+            "At the same time, they do not want the data to be written to a permanent storage to save cost. The result "
+            "should only exist during their current analysis session and be discarded automatically when the notebook is "
+            "detached from the cluster.\n\n"
+            "Which of the following is the most suitable option for this requirement?"
+        ),
+        "options": [
+            "External Table",
+            "Temporary View",
+            "Managed Table",
+            "Standard View",
+            "Global Temporary View"
+        ],
+        "answer": "Temporary View",
+        "explanation": (
+            "A **Temporary View** is the best fit because it is **session-scoped**: it exists only for the lifetime of the "
+            "current Spark session (which, in Databricks, is tied to the notebook being attached to a cluster). It **does not "
+            "write data to permanent storage**, and it is **discarded automatically** when the notebook is detached from the "
+            "cluster. This makes it ideal for reusing the result of a complex query multiple times during an interactive "
+            "analysis without paying storage costs or persisting anything long-term.\n\n"
+            "Why the other options are not suitable:\n"
+            "- **External Table**: backed by data in cloud storage and is **permanent**. This contradicts the requirement to "
+            "avoid permanent storage.\n"
+            "- **Managed Table**: writes/owns data in storage and is **persisted in the metastore**, so it won’t disappear "
+            "when the notebook is detached.\n"
+            "- **Standard View**: a persisted catalog/metastore object (Unity Catalog or Hive metastore). It **remains until "
+            "explicitly dropped** and stores metadata, so it violates the session-only lifecycle.\n"
+            "- **Global Temporary View**: doesn’t write data to permanent storage, but it is **cluster-scoped** (available "
+            "across sessions/notebooks as long as the cluster is running) and is **not discarded just because one notebook is "
+            "detached**, so it doesn’t meet the “only during my current session” requirement.\n\n"
+            "In short: when you want to reuse query results during a single notebook session, without persisting data or "
+            "leaving objects behind, use a **Temporary View**."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q10_input_file_name_trace_source_path",
+        "question": (
+            "A data engineering team is building a quality assurance process to trace records back to their source files "
+            "during ingestion. The team uses Spark SQL to query multiple JSON files stored in the following folder:\n\n"
+            "/Volumes/retail/landing/customers/\n\n"
+            "They want to add a new column to their query output that displays the full path of the file from which each "
+            "row was read.\n\n"
+            "Which of the following SQL queries should they use?"
+        ),
+        "options": [
+            "SELECT *, file_path() FROM json.`/Volumes/retail/landing/customers/`",
+            "SELECT *, get_json_object(file_path) FROM json.`/Volumes/retail/landing/customers/`",
+            "SELECT *, source_path() FROM json.`/Volumes/retail/landing/customers/`",
+            "SELECT *, input_file_name() FROM json.`/Volumes/retail/landing/customers/`",
+            "SELECT *, file_name() FROM json.`/Volumes/retail/landing/customers/`"
+        ],
+        "answer": "SELECT *, input_file_name() FROM json.`/Volumes/retail/landing/customers/`",
+        "explanation": (
+            "**input_file_name()** is a built-in Spark SQL function that returns the **fully qualified file path** of the "
+            "file from which each row was read. It works when reading from folders containing multiple files and supports "
+            "common file formats, including JSON—making it ideal for lineage/traceability, QA checks, and debugging "
+            "ingestion issues.\n\n"
+            "Why the other options are incorrect:\n"
+            "- **file_path()**: not a valid callable Spark SQL function. It may sound like the newer Spark 3.4+ metadata "
+            "field (e.g., **_metadata.file_path**), but **file_path()** itself doesn’t exist as a function.\n"
+            "- **get_json_object(file_path)**: get_json_object extracts values from a JSON string inside a column; it does "
+            "not retrieve the input file path.\n"
+            "- **source_path()**: no such Spark SQL function; would cause a runtime error.\n"
+            "- **file_name()**: no such Spark SQL function; also would cause an error.\n\n"
+            "Extra context (often seen in newer runtimes): Spark 3.4+ can expose file metadata via **_metadata.file_path**, "
+            "but for this type of exam question the expected and most portable answer remains **input_file_name()**."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q11_transform_array_uppercase",
+        "question": (
+            "A data engineer is working with a column named items that contains arrays of item names. "
+            "They want to convert each item name to uppercase without changing the structure of the array.\n\n"
+            "Which Spark SQL function should they use?"
+        ),
+        "options": [
+            "explode",
+            "array_upper",
+            "filter",
+            "flatten",
+            "transform"
+        ],
+        "answer": "transform",
+        "explanation": (
+            "The correct function is transform, a higher-order Spark SQL function designed to apply a transformation "
+            "to each element of an array while preserving its structure.\n\n"
+
+            "Using transform(items, x -> upper(x)) converts each string element in the array to uppercase and "
+            "returns a new array with the same shape and number of elements. The original array structure is not modified.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- explode converts each element of the array into separate rows, altering the dataset structure.\n"
+            "- array_upper returns the highest index (array length), not a transformation of values.\n"
+            "- filter removes elements based on a condition and may shrink the array.\n"
+            "- flatten merges nested arrays into a single-level array and does not modify string values.\n\n"
+
+            "Higher-order functions in Spark SQL allow element-wise transformations without restructuring data. "
+            "transform takes two arguments: the array and a lambda expression, applies the lambda to each element, "
+            "and returns a new array containing the transformed elements.\n\n"
+
+            "Example usage:\n"
+            "SELECT transform(items, x -> upper(x)) AS upper_items FROM table;\n\n"
+
+            "This approach is ideal when formatting or computing values inside arrays while preserving the original schema."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q12_databricks_connect_ide_debugging",
+        "question": (
+            "A healthcare research team wants to build Spark applications in PyCharm as that's their preferred IDE for development. "
+            "During development they want to be able to step through the code and debug interactively. However, their laptops cannot "
+            "process large patient datasets stored in the Databricks Lakehouse. They want to keep using their IDE but still leverage "
+            "Databricks cluster scale.\n\n"
+            "Which approach best meets their needs?"
+        ),
+        "options": [
+            "Export their code as a JAR and run it from the Databricks CLI.",
+            "Use Databricks Connect to link their IDE with a Databricks cluster for execution.",
+            "Run Spark locally with sampled datasets for development.",
+            "Switch entirely to Databricks notebooks for development.",
+            "Upload Python files to Databricks and run them as scheduled jobs."
+        ],
+        "answer": "Use Databricks Connect to link their IDE with a Databricks cluster for execution.",
+        "explanation": (
+            "Databricks Connect allows developers to write and debug Spark code locally in their preferred IDE (such as PyCharm) "
+            "while execution actually happens on a remote Databricks cluster. This preserves interactive debugging capabilities "
+            "(breakpoints, step-through execution, refactoring tools, unit tests) without requiring the laptop to process large datasets.\n\n"
+
+            "Why the correct answer is correct:\n"
+            "- It keeps the local IDE workflow while executing Spark jobs on scalable cluster compute.\n"
+            "- Developers can debug interactively line-by-line inside the IDE.\n"
+            "- It solves both constraints: limited laptop resources and need for interactivity.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Exporting a JAR and running via CLI is for deployment, not interactive development/debugging.\n"
+            "- Running Spark locally with sampled data avoids scale and does not reflect real workloads.\n"
+            "- Switching to notebooks removes the team’s preferred IDE workflow.\n"
+            "- Running files as jobs executes remotely but does not allow interactive debugging.\n\n"
+
+            "Databricks Connect is specifically designed to bridge local development environments and remote cluster execution, "
+            "enabling scalable development without sacrificing productivity."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q13_unity_catalog_missing_use_catalog",
+        "question": (
+            "The reporting team needs just the SELECT privileges on the orders_summary table so that they can use the "
+            "table for reporting requirements. The table exists in the catalog analytics and schema sales_q1.\n\n"
+            "To satisfy the requirement, the Data Engineer granted SELECT privilege on the orders_summary table to a "
+            "user group called reporting_team. They also granted the USE SCHEMA privilege on the sales_q1 schema to "
+            "the same group.\n\n"
+            "However, users in the group are still receiving permission errors when attempting to query the "
+            "orders_summary table.\n\n"
+            "Which of the following steps should the engineer take to resolve the issue?"
+        ),
+        "options": [
+            "Enable lineage tracking for the reporting_team group in the Unity Catalog metastore.",
+            "Grant the USE CATALOG privilege on the analytics catalog to the reporting_team group.",
+            "Assign the reporting_team group as the owner of the orders_summary table.",
+            "Grant the ALL PRIVILEGES on the sales_q1 schema to the reporting_team group.",
+            "Grant the SELECT privilege again using the ALL PRIVILEGES keyword on the orders_summary table."
+        ],
+        "answer": "Grant the USE CATALOG privilege on the analytics catalog to the reporting_team group.",
+        "explanation": (
+            "Unity Catalog permissions are hierarchical. To query a table, a principal must have access at three levels: "
+            "catalog → schema → table.\n\n"
+
+            "The engineer already granted:\n"
+            "- SELECT on the table\n"
+            "- USE SCHEMA on the schema\n\n"
+
+            "But they forgot the required top-level permission: USE CATALOG.\n\n"
+
+            "Without USE CATALOG, users cannot traverse the Unity Catalog hierarchy to reach the schema or table, "
+            "so queries fail with permission errors even if lower-level privileges exist.\n\n"
+
+            "Why the correct answer works:\n"
+            "- Granting USE CATALOG allows navigation into the catalog\n"
+            "- Combined with USE SCHEMA and SELECT, it provides exactly the minimum read-only access required\n"
+            "- This follows the principle of least privilege\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Lineage tracking is governance metadata and does not affect access permissions\n"
+            "- Ownership grants full administrative control (excessive privileges)\n"
+            "- ALL PRIVILEGES on schema grants create/modify rights beyond read-only needs\n"
+            "- Re-granting SELECT does not fix missing parent-level permissions\n\n"
+
+            "Correct permission chain required to query a table:\n"
+            "USE CATALOG → USE SCHEMA → SELECT"
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q14_transform_values_map_tax",
+        "question": (
+            "A data engineer wants to apply a 20% value added tax to all item prices stored in a map column named item_prices, "
+            "where the item names are the keys and prices are the values.\n\n"
+            "Which of the following SQL expressions correctly updates the prices while keeping the keys unchanged?"
+        ),
+        "options": [
+            "SELECT map(item_prices, (k, v) -> (k, v * 1.20)) FROM order_items;",
+            "SELECT map_values(item_prices, v -> v * 1.20) FROM order_items;",
+            "SELECT transform(item_prices, (k, v) -> struct(k, v * 1.20)) FROM order_items;",
+            "SELECT transform_values(item_prices, (k, v) -> round(v * 1.20, 2)) FROM order_items;",
+            "SELECT transform_keys(item_prices, (k, v) -> v * 1.20) FROM order_items;"
+        ],
+        "answer": "SELECT transform_values(item_prices, (k, v) -> round(v * 1.20, 2)) FROM order_items;",
+        "explanation": (
+            "transform_values is the correct higher-order function to update values in a MAP column while keeping the keys unchanged.\n\n"
+
+            "The lambda expression (k, v) -> round(v * 1.20, 2) applies a 20% tax to each value and rounds the result to two decimal places.\n\n"
+
+            "Why this is correct:\n"
+            "- It iterates over each key-value pair in the map.\n"
+            "- It modifies only the values (prices).\n"
+            "- It preserves the original keys (item names).\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- map(...) is a constructor, not a transformation function.\n"
+            "- map_values is not a valid Spark SQL function.\n"
+            "- transform is designed for arrays, not maps.\n"
+            "- transform_keys modifies keys instead of values.\n\n"
+
+            "To modify only the values of a MAP column in Spark SQL, the correct function is transform_values."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q15_databricks_connect_execution_model",
+        "question": (
+            "A developer runs a PySpark application through Databricks Connect in VS Code. "
+            "The code reads a Delta table, performs aggregations with Spark SQL, and then uses regular Python list "
+            "comprehensions to process the collected results.\n\n"
+            "Where does each part of the code run?"
+        ),
+        "options": [
+            "Spark code executes locally in the IDE, while Python code executes on the cluster.",
+            "Both Spark and Python code execute on the Databricks cluster.",
+            "Only SQL queries can be executed with Databricks Connect.",
+            "Both Spark and Python code execute locally in the IDE.",
+            "Spark code executes on the Databricks cluster, while Python code executes locally."
+        ],
+        "answer": "Spark code executes on the Databricks cluster, while Python code executes locally.",
+        "explanation": (
+            "Databricks Connect separates execution between the local development environment and the remote Databricks cluster.\n\n"
+
+            "Execution model:\n"
+            "- Spark operations (reading Delta tables, SQL aggregations, transformations, actions) run remotely on the Databricks cluster.\n"
+            "- Regular Python code (loops, print statements, list comprehensions, local processing after collect()) runs locally in the IDE.\n\n"
+
+            "Why the correct answer is correct:\n"
+            "- The Delta read and Spark SQL aggregations are distributed Spark operations, so they execute on the cluster.\n"
+            "- After data is collected to the driver, standard Python logic executes locally inside VS Code.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Spark does not execute locally when using Databricks Connect; the cluster provides scalability.\n"
+            "- Python does not execute on the cluster unless explicitly part of a Spark transformation (e.g., UDFs).\n"
+            "- Databricks Connect supports the full Spark API, not only SQL.\n"
+            "- Running everything locally defeats the purpose of connecting to a cluster.\n\n"
+
+            "Databricks Connect enables local debugging and IDE workflows while Spark computation runs remotely, "
+            "allowing scalable execution with interactive development."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q06_delta_acid_transactions_benefits",
+        "question": (
+            "¿Cuál es un beneficio clave de las transacciones ACID en Delta Lake?\n"
+            "(Elige 2 opciones)"
+        ),
+        "options": [
+            "Permiten una ejecución de queries más rápida usando Delta caching",
+            "Compactan automáticamente archivos Parquet pequeños",
+            "Eliminan la necesidad de schema enforcement",
+            "Garantizan la consistencia de los datos durante lecturas y escrituras concurrentes",
+            "Garantizan que las operaciones de escritura se confirmen completamente o se reviertan"
+        ],
+        "answer": [
+            "Garantizan la consistencia de los datos durante lecturas y escrituras concurrentes",
+            "Garantizan que las operaciones de escritura se confirmen completamente o se reviertan"
+        ],
+        "explanation": (
+            "Delta Lake implementa garantías completas de transacciones ACID para proporcionar fiabilidad en entornos distribuidos, "
+            "especialmente cuando múltiples usuarios o jobs interactúan con la misma tabla simultáneamente.\n\n"
+
+            "Propiedades ACID proporcionadas por Delta Lake:\n"
+            "- Atomicity: Una operación de escritura o bien tiene éxito por completo o se revierte completamente. Si un job falla a mitad de la operación, "
+            "no se confirma ningún dato parcial ni corrupto.\n"
+            "- Consistency: Cada transacción mueve la tabla de un estado válido a otro.\n"
+            "- Isolation: Las lecturas y escrituras concurrentes no interfieren; los lectores siempre ven un snapshot consistente de los datos.\n"
+            "- Durability: Una vez confirmada, la información permanece almacenada de forma permanente incluso después de fallos.\n\n"
+
+            "Por qué las respuestas correctas son correctas:\n"
+            "- Los snapshots consistentes permiten lecturas y escrituras concurrentes seguras sin conflictos.\n"
+            "- Las transacciones garantizan escrituras de todo o nada, evitando actualizaciones parciales durante fallos.\n\n"
+
+            "Por qué las otras opciones son incorrectas:\n"
+            "- Delta caching mejora el rendimiento pero no está relacionado con las garantías ACID.\n"
+            "- La compactación de archivos la gestiona OPTIMIZE, no las transacciones ACID.\n"
+            "- Schema enforcement es una funcionalidad separada de Delta Lake y sigue siendo necesaria con ACID.\n\n"
+
+            "Las garantías ACID son críticas para operaciones como MERGE, UPDATE y DELETE donde la corrección de los datos concurrentes es importante."
+        ),
+    },
+
+    {
+        "exam": 4,
+        "id": "q07_delta_sharing_limitation_read_only",
+        "question": (
+            "¿Cuál de las siguientes es una limitación de Delta Sharing?"
+        ),
+        "options": [
+            "Los recipients deben tener acceso a un workspace de Databricks para consultar los datos compartidos.",
+            "Delta sharing solo permite compartir datos. Otros assets de databricks no se pueden compartir",
+            "Los recipients solo pueden acceder a datos en formato Parquet.",
+            "Tanto el provider como el recipient deben estar en el mismo cloud provider.",
+            "Los recipients solo pueden consultar los datos compartidos en modo read-only."
+        ],
+        "answer": "Los recipients solo pueden consultar los datos compartidos en modo read-only.",
+        "explanation": (
+            "La limitación clave de Delta Sharing es que los recipients obtienen acceso read-only: pueden consultar/consumir los datos compartidos, "
+            "pero no pueden modificarlos ni escribir cambios de vuelta en las tablas del provider.\n\n"
+            "Por qué la opción correcta es correcta:\n"
+            "- Read-only es fundamental en el modelo de sharing: el provider sigue siendo la fuente de verdad, y los recipients consumen "
+            "un share gobernado y seguro sin poder actualizar los datos del provider.\n\n"
+            "Por qué las otras opciones son incorrectas:\n"
+            "- “Los recipients deben tener acceso a un workspace de Databricks …” es falso: recipients externos (p. ej., Tableau, pandas, "
+            "Power BI) pueden usar el protocolo Open Sharing sin Databricks.\n"
+            "- “Delta sharing solo permite compartir datos … otros assets no se pueden compartir” no es una limitación universal: puede "
+            "ser cierto para Open Sharing, pero el sharing Databricks-to-Databricks puede soportar compartir otros assets (por ejemplo notebooks, "
+            "dashboards, ML models y volumes). Esto es una distinción de protocolo, no una limitación central de Delta Sharing.\n"
+            "- “Los recipients solo pueden acceder a datos en formato Parquet” es incorrecto: Delta Sharing está construido alrededor de tablas Delta, "
+            "no acceso solo a Parquet en bruto.\n"
+            "- “Tanto el provider como el recipient deben estar en el mismo cloud provider” es incorrecto: se soporta sharing cross-cloud y cross-region. "
+            "La principal consideración puede ser posibles costes de egress, pero no es una limitación funcional de Delta Sharing.\n\n"
+            "Resumen:\n"
+            "Delta Sharing permite acceso seguro, live y gobernado a datos entre workspaces, organizaciones y clouds. La limitación principal "
+            "es que los recipients solo pueden consumir/consultar los datos en modo read-only."
+        ),
+    },
+
+    {
+        "exam": 4,
+        "id": "q08_pyspark_sql_temp_view_query",
+        "question": (
+            "Un/a data engineer está trabajando en un notebook de Databricks usando PySpark. Han registrado una temporary view "
+            "llamada transactions_view y quieren recuperar todas las filas donde amount es mayor que 1000 usando SQL.\n\n"
+            "¿Cuál de los siguientes snippets de código Python ejecuta correctamente esta query SQL y devuelve un Spark DataFrame?"
+        ),
+        "options": [
+            "spark.query(\"SELECT * FROM transactions_view WHERE amount > 1000\")",
+            "spark.read.sql(\"SELECT * FROM transactions_view WHERE amount > 1000\")",
+            "sqlContext.read(\"SELECT * FROM transactions_view WHERE amount > 1000\")",
+            "spark.sql(\"SELECT * FROM transactions_view WHERE amount > 1000\")",
+            "transactions_view.sql(\"SELECT * FROM transactions_view WHERE amount > 1000\")"
+        ],
+        "answer": "spark.sql(\"SELECT * FROM transactions_view WHERE amount > 1000\")",
+        "explanation": (
+            "spark.sql() es la forma correcta de ejecutar una query SQL contra una temporary view registrada en PySpark. "
+            "Envía la sentencia SQL al motor de Spark y devuelve el resultado como un Spark DataFrame.\n\n"
+
+            "Cómo funciona:\n"
+            "- Un DataFrame se puede registrar como una temporary view.\n"
+            "- Las queries de Spark SQL pueden referenciar el nombre de la view exactamente igual que una tabla.\n"
+            "- spark.sql() ejecuta la query SQL y devuelve un DataFrame que se puede transformar o mostrar.\n\n"
+
+            "Por qué las otras opciones son incorrectas:\n"
+            "- spark.query(...) no existe y lanza un AttributeError.\n"
+            "- spark.read.sql(...) es inválido porque spark.read es para cargar data sources, no para ejecutar queries SQL.\n"
+            "- sqlContext.read(...) lee ficheros (Parquet/JSON/etc.), no sentencias SQL.\n"
+            "- transactions_view.sql(...) asume que la view es un objeto con un método .sql(), lo cual no es.\n\n"
+
+            "Ejemplo de uso correcto:\n"
+            "spark.sql(\"SELECT * FROM transactions_view WHERE amount > 1000\")\n\n"
+
+            "Esto devuelve un Spark DataFrame que puede procesarse más usando APIs de DataFrame o mostrarse."
+        ),
+    },
+
+    {
+        "exam": 4,
+        "id": "q09_temp_view_session_only_no_storage",
+        "question": (
+            "Un/a data analyst está explorando datos de comportamiento de usuario en un notebook de Databricks para identificar patrones "
+            "inusuales de clickstream. Necesitan usar el resultado de una query compleja varias veces a lo largo del notebook. En lugar de re-"
+            "escribir la query múltiples veces, quieren encontrar una solución alternativa.\n\n"
+            "Al mismo tiempo, no quieren que los datos se escriban en un storage permanente para ahorrar coste. El resultado "
+            "solo debería existir durante su sesión de análisis actual y descartarse automáticamente cuando el notebook se "
+            "detache del cluster.\n\n"
+            "¿Cuál de las siguientes es la opción más adecuada para este requisito?"
+        ),
+        "options": [
+            "External Table",
+            "Temporary View",
+            "Managed Table",
+            "Standard View",
+            "Global Temporary View"
+        ],
+        "answer": "Temporary View",
+        "explanation": (
+            "Una **Temporary View** es la mejor opción porque es **session-scoped**: existe solo durante la vida del "
+            "Spark session actual (que, en Databricks, está ligado a que el notebook esté attached a un cluster). **No "
+            "escribe datos en storage permanente**, y se **descarta automáticamente** cuando el notebook se detacha del "
+            "cluster. Esto la hace ideal para reutilizar el resultado de una query compleja varias veces durante un "
+            "análisis interactivo sin pagar costes de storage ni persistir nada a largo plazo.\n\n"
+            "Por qué las otras opciones no son adecuadas:\n"
+            "- **External Table**: está respaldada por datos en cloud storage y es **permanente**. Esto contradice el requisito de "
+            "evitar storage permanente.\n"
+            "- **Managed Table**: escribe/posee datos en storage y queda **persistida en el metastore**, por lo que no desaparecerá "
+            "cuando el notebook se detache.\n"
+            "- **Standard View**: es un objeto persistente en el catálogo/metastore (Unity Catalog o Hive metastore). **Permanece hasta que "
+            "se dropee explícitamente** y almacena metadata, así que viola el ciclo de vida solo de sesión.\n"
+            "- **Global Temporary View**: no escribe datos en storage permanente, pero es **cluster-scoped** (disponible "
+            "entre sessions/notebooks mientras el cluster esté corriendo) y **no se descarta solo porque un notebook se "
+            "detache**, así que no cumple el requisito de “solo durante mi sesión actual”.\n\n"
+            "En resumen: cuando quieres reutilizar resultados de una query durante una única sesión de notebook, sin persistir datos ni "
+            "dejar objetos creados, usa una **Temporary View**."
+        ),
+    },
+
+    {
+        "exam": 4,
+        "id": "q10_input_file_name_trace_source_path",
+        "question": (
+            "Un equipo de data engineering está construyendo un proceso de quality assurance para trazar registros hasta sus ficheros origen "
+            "durante la ingestión. El equipo usa Spark SQL para consultar múltiples ficheros JSON almacenados en la siguiente carpeta:\n\n"
+            "/Volumes/retail/landing/customers/\n\n"
+            "Quieren añadir una nueva columna al output de su query que muestre la ruta completa del fichero del que se leyó cada "
+            "fila.\n\n"
+            "¿Cuál de las siguientes queries de SQL deberían usar?"
+        ),
+        "options": [
+            "SELECT *, file_path() FROM json.`/Volumes/retail/landing/customers/`",
+            "SELECT *, get_json_object(file_path) FROM json.`/Volumes/retail/landing/customers/`",
+            "SELECT *, source_path() FROM json.`/Volumes/retail/landing/customers/`",
+            "SELECT *, input_file_name() FROM json.`/Volumes/retail/landing/customers/`",
+            "SELECT *, file_name() FROM json.`/Volumes/retail/landing/customers/`"
+        ],
+        "answer": "SELECT *, input_file_name() FROM json.`/Volumes/retail/landing/customers/`",
+        "explanation": (
+            "**input_file_name()** es una función built-in de Spark SQL que devuelve la **ruta del fichero totalmente cualificada** del "
+            "fichero desde el que se leyó cada fila. Funciona al leer desde carpetas que contienen múltiples ficheros y soporta "
+            "formatos de fichero comunes, incluido JSON—lo que la hace ideal para lineage/traceability, QA checks y depurar "
+            "issues de ingestión.\n\n"
+            "Por qué las otras opciones son incorrectas:\n"
+            "- **file_path()**: no es una función invocable válida en Spark SQL. Puede sonar parecido al campo de metadata más nuevo de Spark 3.4+ "
+            "(p. ej., **_metadata.file_path**), pero **file_path()** en sí no existe como función.\n"
+            "- **get_json_object(file_path)**: get_json_object extrae valores de un string JSON dentro de una columna; "
+            "no recupera la ruta del fichero de entrada.\n"
+            "- **source_path()**: no existe esa función en Spark SQL; causaría un runtime error.\n"
+            "- **file_name()**: no existe esa función en Spark SQL; también causaría un error.\n\n"
+            "Contexto extra (a menudo visto en runtimes más nuevos): Spark 3.4+ puede exponer metadata de ficheros vía **_metadata.file_path**, "
+            "pero para este tipo de pregunta de examen la respuesta esperada y más portable sigue siendo **input_file_name()**."
+        ),
+    },
+
+    {
+        "exam": 4,
+        "id": "q11_transform_array_uppercase",
+        "question": (
+            "Un/a data engineer está trabajando con una columna llamada items que contiene arrays de nombres de items. "
+            "Quieren convertir cada nombre de item a uppercase sin cambiar la estructura del array.\n\n"
+            "¿Qué función de Spark SQL deberían usar?"
+        ),
+        "options": [
+            "explode",
+            "array_upper",
+            "filter",
+            "flatten",
+            "transform"
+        ],
+        "answer": "transform",
+        "explanation": (
+            "La función correcta es transform, una función higher-order de Spark SQL diseñada para aplicar una transformación "
+            "a cada elemento de un array preservando su estructura.\n\n"
+
+            "Usar transform(items, x -> upper(x)) convierte cada elemento string del array a uppercase y "
+            "devuelve un nuevo array con la misma forma y el mismo número de elementos. La estructura original del array no se modifica.\n\n"
+
+            "Por qué las otras opciones son incorrectas:\n"
+            "- explode convierte cada elemento del array en filas separadas, alterando la estructura del dataset.\n"
+            "- array_upper devuelve el índice más alto (longitud del array), no una transformación de valores.\n"
+            "- filter elimina elementos en función de una condición y puede reducir el tamaño del array.\n"
+            "- flatten fusiona arrays anidados en un array de un solo nivel y no modifica valores string.\n\n"
+
+            "Las funciones higher-order en Spark SQL permiten transformaciones elemento a elemento sin reestructurar los datos. "
+            "transform toma dos argumentos: el array y una expresión lambda, aplica la lambda a cada elemento "
+            "y devuelve un nuevo array que contiene los elementos transformados.\n\n"
+
+            "Ejemplo de uso:\n"
+            "SELECT transform(items, x -> upper(x)) AS upper_items FROM table;\n\n"
+
+            "Este enfoque es ideal cuando se formatean o se calculan valores dentro de arrays preservando el schema original."
+        ),
+    },
+
+    {
+        "exam": 4,
+        "id": "q12_databricks_connect_ide_debugging",
+        "question": (
+            "Un equipo de investigación sanitaria quiere construir aplicaciones Spark en PyCharm, ya que es su IDE preferido para desarrollo. "
+            "Durante el desarrollo quieren poder recorrer el código paso a paso y hacer debugging de forma interactiva. Sin embargo, sus portátiles no pueden "
+            "procesar grandes datasets de pacientes almacenados en el Databricks Lakehouse. Quieren seguir usando su IDE pero aun así aprovechar "
+            "la escala del cluster de Databricks.\n\n"
+            "¿Qué enfoque satisface mejor sus necesidades?"
+        ),
+        "options": [
+            "Export their code as a JAR and run it from the Databricks CLI.",
+            "Use Databricks Connect to link their IDE with a Databricks cluster for execution.",
+            "Run Spark locally with sampled datasets for development.",
+            "Switch entirely to Databricks notebooks for development.",
+            "Upload Python files to Databricks and run them as scheduled jobs."
+        ],
+        "answer": "Use Databricks Connect to link their IDE with a Databricks cluster for execution.",
+        "explanation": (
+            "Databricks Connect permite a los developers escribir y hacer debugging de código Spark localmente en su IDE preferido (como PyCharm) "
+            "mientras la ejecución realmente ocurre en un cluster remoto de Databricks. Esto preserva capacidades de debugging interactivo "
+            "(breakpoints, step-through execution, herramientas de refactorización, unit tests) sin requerir que el portátil procese grandes datasets.\n\n"
+
+            "Por qué la respuesta correcta es correcta:\n"
+            "- Mantiene el workflow del IDE local mientras ejecuta jobs de Spark en compute escalable del cluster.\n"
+            "- Los developers pueden hacer debugging interactivo línea por línea dentro del IDE.\n"
+            "- Resuelve ambas restricciones: recursos limitados del portátil y necesidad de interactividad.\n\n"
+
+            "Por qué las otras opciones son incorrectas:\n"
+            "- Exportar un JAR y ejecutar vía CLI es para deployment, no para desarrollo/debugging interactivo.\n"
+            "- Ejecutar Spark localmente con datos muestreados evita la escala y no refleja workloads reales.\n"
+            "- Cambiar a notebooks elimina el workflow del IDE preferido del equipo.\n"
+            "- Ejecutar ficheros como jobs se ejecuta en remoto pero no permite debugging interactivo.\n\n"
+
+            "Databricks Connect está diseñado específicamente para conectar entornos de desarrollo locales con ejecución remota en el cluster, "
+            "permitiendo desarrollo escalable sin sacrificar productividad."
+        ),
+    },
+
+    {
+        "exam": 4,
+        "id": "q13_unity_catalog_missing_use_catalog",
+        "question": (
+            "El equipo de reporting necesita solo los privilegios SELECT sobre la tabla orders_summary para poder usar la "
+            "tabla para requisitos de reporting. La tabla existe en el catálogo analytics y el esquema sales_q1.\n\n"
+            "Para satisfacer el requisito, el/la Data Engineer concedió el privilegio SELECT sobre la tabla orders_summary a un "
+            "grupo de usuarios llamado reporting_team. También concedió el privilegio USE SCHEMA sobre el esquema sales_q1 al "
+            "mismo grupo.\n\n"
+            "Sin embargo, los usuarios del grupo siguen recibiendo errores de permisos al intentar consultar la "
+            "tabla orders_summary.\n\n"
+            "¿Cuál de los siguientes pasos debería tomar el/la engineer para resolver el problema?"
+        ),
+        "options": [
+            "Enable lineage tracking for the reporting_team group in the Unity Catalog metastore.",
+            "Grant the USE CATALOG privilege on the analytics catalog to the reporting_team group.",
+            "Assign the reporting_team group as the owner of the orders_summary table.",
+            "Grant the ALL PRIVILEGES on the sales_q1 schema to the reporting_team group.",
+            "Grant the SELECT privilege again using the ALL PRIVILEGES keyword on the orders_summary table."
+        ],
+        "answer": "Grant the USE CATALOG privilege on the analytics catalog to the reporting_team group.",
+        "explanation": (
+            "Los permisos de Unity Catalog son jerárquicos. Para consultar una tabla, un principal debe tener acceso en tres niveles: "
+            "catalog → schema → table.\n\n"
+
+            "El/la engineer ya concedió:\n"
+            "- SELECT en la tabla\n"
+            "- USE SCHEMA en el schema\n\n"
+
+            "Pero olvidó el permiso de nivel superior requerido: USE CATALOG.\n\n"
+
+            "Sin USE CATALOG, los usuarios no pueden recorrer la jerarquía de Unity Catalog para llegar al schema o la tabla, "
+            "así que las queries fallan con errores de permisos aunque existan privilegios en niveles inferiores.\n\n"
+
+            "Por qué la respuesta correcta funciona:\n"
+            "- Conceder USE CATALOG permite navegar dentro del catálogo\n"
+            "- Combinado con USE SCHEMA y SELECT, proporciona exactamente el acceso mínimo read-only requerido\n"
+            "- Esto sigue el principio de least privilege\n\n"
+
+            "Por qué las otras opciones son incorrectas:\n"
+            "- Lineage tracking es metadata de gobernanza y no afecta a permisos de acceso\n"
+            "- Ownership concede control administrativo completo (privilegios excesivos)\n"
+            "- ALL PRIVILEGES en el schema concede permisos de crear/modificar más allá de necesidades read-only\n"
+            "- Volver a conceder SELECT no arregla permisos faltantes en el nivel padre\n\n"
+
+            "Cadena correcta de permisos requerida para consultar una tabla:\n"
+            "USE CATALOG → USE SCHEMA → SELECT"
+        ),
+    },
+
+    {
+        "exam": 4,
+        "id": "q14_transform_values_map_tax",
+        "question": (
+            "Un/a data engineer quiere aplicar un 20% de value added tax a todos los precios de items almacenados en una columna map llamada item_prices, "
+            "donde los nombres de los items son las keys y los precios son los values.\n\n"
+            "¿Cuál de las siguientes expresiones SQL actualiza correctamente los precios manteniendo las keys sin cambios?"
+        ),
+        "options": [
+            "SELECT map(item_prices, (k, v) -> (k, v * 1.20)) FROM order_items;",
+            "SELECT map_values(item_prices, v -> v * 1.20) FROM order_items;",
+            "SELECT transform(item_prices, (k, v) -> struct(k, v * 1.20)) FROM order_items;",
+            "SELECT transform_values(item_prices, (k, v) -> round(v * 1.20, 2)) FROM order_items;",
+            "SELECT transform_keys(item_prices, (k, v) -> v * 1.20) FROM order_items;"
+        ],
+        "answer": "SELECT transform_values(item_prices, (k, v) -> round(v * 1.20, 2)) FROM order_items;",
+        "explanation": (
+            "transform_values es la función higher-order correcta para actualizar values en una columna MAP manteniendo las keys sin cambios.\n\n"
+
+            "La expresión lambda (k, v) -> round(v * 1.20, 2) aplica un 20% de tax a cada value y redondea el resultado a dos decimales.\n\n"
+
+            "Por qué esto es correcto:\n"
+            "- Itera sobre cada par key-value del map.\n"
+            "- Modifica solo los values (precios).\n"
+            "- Preserva las keys originales (nombres de items).\n\n"
+
+            "Por qué las otras opciones son incorrectas:\n"
+            "- map(...) es un constructor, no una función de transformación.\n"
+            "- map_values no es una función válida de Spark SQL.\n"
+            "- transform está diseñada para arrays, no para maps.\n"
+            "- transform_keys modifica las keys en lugar de los values.\n\n"
+
+            "Para modificar solo los values de una columna MAP en Spark SQL, la función correcta es transform_values."
+        ),
+    },
+
+    {
+        "exam": 4,
+        "id": "q15_databricks_connect_execution_model",
+        "question": (
+            "Un/a developer ejecuta una aplicación PySpark mediante Databricks Connect en VS Code. "
+            "El código lee una tabla Delta, realiza agregaciones con Spark SQL y luego usa list "
+            "comprehensions normales de Python para procesar los resultados recolectados.\n\n"
+            "¿Dónde se ejecuta cada parte del código?"
+        ),
+        "options": [
+            "Spark code executes locally in the IDE, while Python code executes on the cluster.",
+            "Both Spark and Python code execute on the Databricks cluster.",
+            "Only SQL queries can be executed with Databricks Connect.",
+            "Both Spark and Python code execute locally in the IDE.",
+            "Spark code executes on the Databricks cluster, while Python code executes locally."
+        ],
+        "answer": "Spark code executes on the Databricks cluster, while Python code executes locally.",
+        "explanation": (
+            "Databricks Connect separa la ejecución entre el entorno de desarrollo local y el cluster remoto de Databricks.\n\n"
+
+            "Modelo de ejecución:\n"
+            "- Operaciones Spark (leer tablas Delta, agregaciones SQL, transformaciones, actions) se ejecutan en remoto en el cluster de Databricks.\n"
+            "- Código Python normal (loops, print statements, list comprehensions, procesamiento local tras collect()) se ejecuta localmente en el IDE.\n\n"
+
+            "Por qué la respuesta correcta es correcta:\n"
+            "- La lectura de Delta y las agregaciones de Spark SQL son operaciones Spark distribuidas, así que se ejecutan en el cluster.\n"
+            "- Tras recolectar los datos al driver, la lógica estándar de Python se ejecuta localmente dentro de VS Code.\n\n"
+
+            "Por qué las otras opciones son incorrectas:\n"
+            "- Spark no se ejecuta localmente cuando se usa Databricks Connect; el cluster proporciona escalabilidad.\n"
+            "- Python no se ejecuta en el cluster a menos que sea explícitamente parte de una transformación Spark (p. ej., UDFs).\n"
+            "- Databricks Connect soporta el Spark API completo, no solo SQL.\n"
+            "- Ejecutar todo localmente anula el propósito de conectarse a un cluster.\n\n"
+
+            "Databricks Connect permite debugging local y workflows de IDE mientras el cómputo Spark se ejecuta en remoto, "
+            "permitiendo ejecución escalable con desarrollo interactivo."
+        ),
+    },
 
 ]
 

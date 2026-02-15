@@ -22,6 +22,22 @@
     .muted { color: #666; }
     input[type="text"] { font-size: 16px; padding: 10px 12px; border-radius: 10px; border: 1px solid #ddd; }
     .explain { margin-top: 10px; padding: 12px; border-radius: 12px; background: #f7f7f7; }
+
+    /* Multi (checkbox) */
+    .optCheck {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      background: #fff;
+      cursor: pointer;
+      user-select: none;
+      white-space: pre-wrap;
+    }
+    .optCheck input { margin-top: 4px; }
+    .actionsRow { display: flex; gap: 10px; flex-wrap: wrap; }
   </style>
 </head>
 
@@ -59,6 +75,12 @@
           <option value="2es">Examen 2 Español</option>
           <option value="3">Examen 3 Ingles</option>
           <option value="3es">Examen 3 Español</option>
+
+          <option value="4">Examen 4 Ingles</option>
+          <option value="4es">Examen 4 Español</option>
+          <option value="5">Examen 5 Ingles</option>
+          <option value="5es">Examen 5 Español</option>
+
           <option value="all">Todos Ingles</option>
           <option value="alles">Todos Español</option>
         </select>
@@ -301,7 +323,7 @@
       promptEl.textContent = "Cargando...";
 
       try {
-        const exam = examEl.value; // 1,1es,2,2es,3,3es,all
+        const exam = examEl.value;
         const res = await fetch(`/api/dbx/next/?exam=${encodeURIComponent(exam)}`);
 
         if (!res.ok) {
@@ -321,13 +343,52 @@
         promptEl.textContent = current.question;
         setScore(current.progress);
 
+        // SINGLE: igual que antes
+        if (!current.is_multi) {
+          current.options.forEach((opt) => {
+            const b = document.createElement("button");
+            b.className = "opt";
+            b.textContent = opt;
+            b.onclick = () => chooseDbx(opt);
+            optionsEl.appendChild(b);
+          });
+          return;
+        }
+
+        // MULTI: checkboxes + botón comprobar
         current.options.forEach((opt) => {
-          const b = document.createElement("button");
-          b.className = "opt";
-          b.textContent = opt;
-          b.onclick = () => chooseDbx(opt);
-          optionsEl.appendChild(b);
+          const label = document.createElement("label");
+          label.className = "optCheck";
+
+          const cb = document.createElement("input");
+          cb.type = "checkbox";
+          cb.value = opt;
+
+          const span = document.createElement("span");
+          span.textContent = opt;
+
+          label.appendChild(cb);
+          label.appendChild(span);
+
+          label.addEventListener("click", (e) => {
+            if (e.target.tagName.toLowerCase() !== "input") {
+              cb.checked = !cb.checked;
+            }
+          });
+
+          optionsEl.appendChild(label);
         });
+
+        const actions = document.createElement("div");
+        actions.className = "actionsRow";
+
+        const btnCheck = document.createElement("button");
+        btnCheck.className = "primary";
+        btnCheck.textContent = "Comprobar";
+        btnCheck.onclick = () => chooseDbxMulti();
+
+        actions.appendChild(btnCheck);
+        optionsEl.appendChild(actions);
 
       } catch (e) {
         promptEl.textContent = "❌ Error cargando pregunta";
@@ -370,6 +431,66 @@
           }
           b.disabled = true;
         });
+
+        statusEl.innerHTML =
+          (data.ok ? `<span class="ok">✅ Correcto</span>` : `<span class="bad">❌ Incorrecto</span>`) +
+          `<div class="explain"><b>Explicación:</b><br>${data.explanation || ""}</div>`;
+
+      } catch (e) {
+        statusEl.innerHTML = `<span class="bad">Error comprobando:</span> ${String(e)}`;
+        locked = false;
+      }
+    }
+
+    async function chooseDbxMulti() {
+      if (!current || locked) return;
+
+      const checked = [...optionsEl.querySelectorAll("input[type='checkbox']:checked")]
+        .map((x) => x.value);
+
+      if (!checked.length) return;
+
+      locked = true;
+      totalAnswered += 1;
+
+      try {
+        const res = await fetch("/api/dbx/check/", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ id: current.id, picked: checked, exam: current.exam })
+        });
+
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(`HTTP ${res.status}: ${txt.slice(0, 200)}`);
+        }
+
+        const data = await res.json();
+
+        if (data.ok) correctCount += 1;
+        setScore(current.progress);
+
+        // marcar correcto/incorrecto visual
+        const correctSet = new Set(Array.isArray(data.correct) ? data.correct : [data.correct]);
+        const pickedSet = new Set(checked);
+
+        [...optionsEl.querySelectorAll(".optCheck")].forEach((row) => {
+          const cb = row.querySelector("input[type='checkbox']");
+          const val = cb.value;
+
+          if (correctSet.has(val)) {
+            row.style.borderColor = "#0a7a2f";
+            row.style.boxShadow = "0 0 0 3px rgba(10,122,47,.15)";
+          }
+          if (pickedSet.has(val) && !correctSet.has(val)) {
+            row.style.borderColor = "#b00020";
+            row.style.boxShadow = "0 0 0 3px rgba(176,0,32,.12)";
+          }
+
+          cb.disabled = true;
+        });
+
+        [...optionsEl.querySelectorAll("button")].forEach((b) => b.disabled = true);
 
         statusEl.innerHTML =
           (data.ok ? `<span class="ok">✅ Correcto</span>` : `<span class="bad">❌ Incorrecto</span>`) +

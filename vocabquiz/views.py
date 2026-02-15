@@ -118,11 +118,11 @@ def check_answer(request):
 
 
 # ---------------------------
-# DATABRICKS (exam=1|2|3|all|1es|2es|3es|alles)
+# DATABRICKS (exam=1|2|3|4|5|all|1es|2es|3es|4es|5es|alles)
 # ---------------------------
 def _normalize_exam(raw: str) -> str:
     raw = (raw or "all").strip().lower()
-    allowed = {"1", "2", "3", "all", "1es", "2es", "3es", "alles"}
+    allowed = {"1", "2", "3", "4", "5", "all", "1es", "2es", "3es", "4es", "5es", "alles"}
     return raw if raw in allowed else "all"
 
 
@@ -132,7 +132,7 @@ def _is_es(exam: str) -> bool:
 
 def _base_exam_number(exam: str):
     """
-    Devuelve 1/2/3 o None si exam es all/alles
+    Devuelve 1/2/3/4/5 o None si exam es all/alles
     """
     if exam in {"all", "alles"}:
         return None
@@ -202,13 +202,17 @@ def dbx_next(request):
     is_es = _is_es(exam)
     question, _ = _pick_text(q, is_es)
 
+    # Multi si answer es lista
+    is_multi = isinstance(q.get("answer"), list)
+
     return JsonResponse({
         "done": False,
         "type": "dbx-mcq",
-        "exam": exam,  # <-- importante: para que el frontend pueda mandar exam en /check/
+        "exam": exam,
         "id": q.get("id", str(idx)),
         "question": question,
         "options": options,
+        "is_multi": is_multi,
         "progress": {"seen": len(seen), "total": len(questions)},
     })
 
@@ -223,21 +227,32 @@ def dbx_check(request):
         return JsonResponse({"ok": False, "error": "Invalid JSON"}, status=400)
 
     qid = (data.get("id") or "").strip()
-    picked = (data.get("picked") or "").strip()
     exam = _normalize_exam(data.get("exam") or "all")
+
+    # picked puede ser str (single) o list (multi)
+    picked = data.get("picked")
 
     bank = _get_dbx_bank(exam)
     q = next((x for x in bank if x.get("id") == qid), None)
 
-    # fallback por si el banco ES está incompleto y falta ese id
+    # fallback por si el banco ES está incompleto
     if q is None and bank is not DATABRICKS_QUIZ:
         q = next((x for x in DATABRICKS_QUIZ if x.get("id") == qid), None)
 
     if q is None:
         return JsonResponse({"ok": False, "error": "Question not found"}, status=404)
 
-    correct = q["answer"]
-    ok = (picked == correct)
+    correct = q.get("answer")
+
+    if isinstance(correct, list):
+        picked_set = set(picked or [])
+        correct_set = set(correct)
+        ok = picked_set == correct_set
+        multi = True
+    else:
+        picked_str = (picked or "").strip()
+        ok = (picked_str == correct)
+        multi = False
 
     is_es = _is_es(exam)
     _, explanation = _pick_text(q, is_es)
@@ -246,6 +261,7 @@ def dbx_check(request):
         "ok": ok,
         "picked": picked,
         "correct": correct,
+        "multi": multi,
         "explanation": explanation,
     })
 
@@ -253,9 +269,9 @@ def dbx_check(request):
 @require_http_methods(["GET"])
 def dbx_reset(request):
     """
-    /api/dbx/reset/?exam=1|2|3|all|1es|2es|3es|alles
+    /api/dbx/reset/?exam=1|2|3|4|5|all|1es|2es|3es|4es|5es|alles
     - all/alles => borra progreso de todos
-    - 1/1es => borra solo ese
+    - X/Xes => borra solo ese
     """
     exam = _normalize_exam(request.GET.get("exam", "all"))
 

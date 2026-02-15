@@ -2747,4 +2747,207 @@ DATABRICKS_QUIZ = [
             "No son apropiadas para workloads de baja latencia, interactivos o sensibles a SLA."
         ),
     },
+
+    {
+        "exam": 4,
+        "id": "q01_allpurpose_vs_job_clusters",
+        "question": (
+            "¿Cuál de las siguientes describe mejor la diferencia entre all-purpose clusters y job clusters en Databricks?"
+        ),
+        "options": [
+            "All-purpose clusters son para uso colaborativo e interactivo y persisten entre sesiones; job clusters se crean para una sola ejecución y terminan al finalizar",
+            "All-purpose clusters almacenan datos, mientras job clusters gestionan metadata y triggers de jobs",
+            "Job clusters solo soportan SQL, mientras all-purpose clusters soportan Python y Scala",
+            "Job clusters permiten que múltiples usuarios editen notebooks de forma interactiva, mientras all-purpose clusters están limitados a jobs automatizados",
+            "All-purpose clusters son serverless, mientras job clusters requieren configuración manual"
+        ],
+        "answer": "All-purpose clusters son para uso colaborativo e interactivo y persisten entre sesiones; job clusters se crean para una sola ejecución y terminan al finalizar",
+        "explanation": (
+            "Esta pregunta evalúa la diferencia conceptual entre tipos de compute en Databricks.\n\n"
+
+            "All-purpose clusters son clusters compartidos y reutilizables diseñados para cargas interactivas como desarrollo, exploración y colaboración. "
+            "Persisten entre sesiones y permiten a múltiples usuarios ejecutar notebooks de forma interactiva.\n\n"
+
+            "Job clusters son clusters efímeros creados automáticamente para una ejecución específica de un job y terminan una vez el job finaliza. "
+            "Proporcionan aislamiento y eficiencia de coste, haciéndolos ideales para pipelines automatizados de producción.\n\n"
+
+            "Explicación de las opciones incorrectas:\n"
+            "- Los clusters NO almacenan datos ni gestionan metadata; los datos se almacenan en cloud storage y la metadata en Unity Catalog/Hive metastore.\n"
+            "- Ambos tipos de cluster soportan múltiples lenguajes (Python, Scala, SQL, R), no solo SQL.\n"
+            "- La edición interactiva está soportada por all-purpose clusters, no por job clusters.\n"
+            "- Serverless es un concepto de compute separado y no la diferencia entre estos dos tipos de cluster."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q02_sql_udf_format_name",
+        "question": (
+            "Un/a data engineer quiere crear una user-defined function (UDF) en Databricks usando SQL. "
+            "La función debe concatenar un nombre y un apellido, capitalizar cada parte y devolver el nombre completo.\n\n"
+            "¿Cuál de las siguientes sentencias define correctamente esta función?"
+        ),
+        "options": [
+            "CREATE FUNCTION format_name(fname STRING, lname STRING)\nRETURNS STRING\nAS 'SELECT UPPER(fname) || \" \" || UPPER(lname)';",
+            "CREATE FUNCTION format_name(fname STRING, lname STRING)\nRETURNS STRING\nUSING INITCAP(fname) || INITCAP(lname);",
+            "CREATE OR REPLACE FUNCTION format_name(fname STRING, lname STRING)\nRETURNS STRING\nRETURN INITCAP(fname) || ' ' || INITCAP(lname);",
+            "CREATE TEMPORARY FUNCTION format_name AS (fname STRING, lname STRING) -> INITCAP(fname) + ' ' + INITCAP(lname);",
+            "CREATE OR REPLACE FUNCTION format_name(fname, lname)\nRETURN INITCAP(fname) || ' ' || INITCAP(lname);"
+        ],
+        "answer": "CREATE OR REPLACE FUNCTION format_name(fname STRING, lname STRING)\nRETURNS STRING\nRETURN INITCAP(fname) || ' ' || INITCAP(lname);",
+        "explanation": (
+            "Esta es la sintaxis correcta para crear una SQL UDF en Databricks. Usa CREATE OR REPLACE FUNCTION, "
+            "define explícitamente los parámetros de entrada con sus tipos, especifica el tipo de retorno con RETURNS STRING, "
+            "e incluye una expresión SQL válida con RETURN.\n\n"
+
+            "Reglas clave para SQL UDFs en Databricks:\n"
+            "- Debes declarar los nombres de parámetros y sus tipos.\n"
+            "- Debes especificar el tipo de retorno con RETURNS <type>.\n"
+            "- La función debe devolver una expresión SQL válida usando la palabra clave RETURN.\n"
+            "- La concatenación de strings se realiza usando ||, no +.\n"
+            "- Las SQL UDFs no pueden incluir sentencias SQL SELECT completas ni referenciar tablas.\n"
+            "- La sintaxis temporal o estilo lambda no está soportada en declaraciones estándar de SQL UF.\n\n"
+
+            "Por qué las otras opciones son incorrectas:\n"
+            "- AS 'SELECT ...' es inválido porque los cuerpos de Spark SQL UDF no se definen usando strings con SELECT embebido.\n"
+            "- USING no forma parte de la sintaxis de Spark SQL UDF (parece sintaxis legacy de Hive/lenguaje externo).\n"
+            "- CREATE TEMPORARY FUNCTION ... -> es sintaxis tipo lambda de Scala/Python, no sintaxis de SQL UDF, y + es inválido para strings.\n"
+            "- Omitir tipos de datos es inválido porque los parámetros deben declarar explícitamente sus tipos.\n\n"
+
+            "La función toma dos entradas string, aplica INITCAP() para capitalizar cada nombre, las concatena con un espacio "
+            "y devuelve el nombre completo formateado."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q03_dlt_triggered_mode_cost_optimization",
+        "question": (
+            "Una empresa ejecuta un pipeline de Delta Live Tables (DLT) para procesar datos de sensores IoT de equipos de fabricación. "
+            "Los nuevos datos llegan a cloud storage aproximadamente cada 3 a 4 horas. El equipo necesita procesar estos datos de forma fiable "
+            "pero no requiere insights en tiempo real. Además, buscan minimizar costes de compute evitando uso innecesario de clusters "
+            "entre ejecuciones del pipeline.\n\n"
+            "¿Qué modo de pipeline de DLT se ajusta mejor a este caso de uso?"
+        ),
+        "options": [
+            "Triggered mode",
+            "Real-time mode",
+            "Streaming with Auto Loader mode",
+            "Continuous mode",
+            "Interactive mode"
+        ],
+        "answer": "Triggered mode",
+        "explanation": (
+            "Triggered mode ejecuta el pipeline en ejecuciones discretas solo cuando se inicia manualmente o según un schedule. "
+            "Tras procesar los datos disponibles, los recursos de compute se detienen automáticamente. Esto lo convierte en la opción "
+            "más coste-efectiva para escenarios de ingesta batch periódica donde no se requiere baja latencia.\n\n"
+
+            "Modos de pipeline de DLT:\n"
+            "- Continuous mode: se ejecuta indefinidamente y comprueba constantemente si hay nuevos datos, diseñado para procesamiento en tiempo real de baja latencia. "
+            "Esto mantiene los clusters en ejecución y, por tanto, incrementa el coste de compute.\n"
+            "- Triggered mode: procesa los datos disponibles en batches y apaga el compute al finalizar, minimizando coste.\n\n"
+
+            "Por qué este escenario encaja con Triggered mode:\n"
+            "- Los datos llegan solo cada 3–4 horas (no streaming continuo)\n"
+            "- No se requieren insights en tiempo real\n"
+            "- La optimización de coste es importante\n"
+            "- Se necesita procesamiento batch fiable\n\n"
+
+            "Por qué las otras opciones son incorrectas:\n"
+            "- Real-time mode: no es una opción real de configuración en DLT; es solo un estilo conceptual de procesamiento.\n"
+            "- Streaming with Auto Loader mode: Auto Loader es una técnica de ingesta, no un modo de ejecución del pipeline.\n"
+            "- Continuous mode: está diseñado para streaming always-on y mantendría recursos de compute ejecutándose innecesariamente.\n"
+            "- Interactive mode: se refiere a uso de desarrollo en notebooks, no a una estrategia de ejecución de pipeline de DLT.\n\n"
+
+            "Por tanto, Triggered mode es ideal porque procesa datos periódicos de forma fiable mientras levanta compute solo cuando hace falta, "
+            "reduciendo el coste operativo para esta carga de ingesta IoT."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q04_structured_streaming_trigger_processing_timee",
+        "question": (
+            "Un/a data engineer está construyendo un pipeline de Spark Structured Streaming para procesar datos de sensores IoT. "
+            "El equipo quiere procesar cualquier dato nuevo de la fuente cada 60 segundos usando un enfoque de micro-batch. "
+            "El/la engineer escribe el siguiente código:\n\n"
+            "query = (spark.readStream\n"
+            "    .format(\"delta\")\n"
+            "    .load(\"/mnt/sensor_bronze\")\n"
+            "    .writeStream\n"
+            "    .trigger(_____)\n"
+            "    .format(\"delta\")\n"
+            "    .option(\"checkpointLocation\", \"/mnt/checkpoints/silver\")\n"
+            "    .start(\"/mnt/sensor_silver\"))\n\n"
+            "¿Cuál de las siguientes debería usarse para completar correctamente la configuración del trigger?"
+        ),
+        "options": [
+            "Trigger.Continuous(\"60 seconds\")",
+            "Trigger.ProcessingTime(\"60000\")",
+            "Trigger.AvailableNow(\"60 seconds\")",
+            "Trigger.ProcessingTime(\"1 minute\")",
+            "Trigger.Once()"
+        ],
+        "answer": "Trigger.ProcessingTime(\"1 minute\")",
+        "explanation": (
+            "En Spark Structured Streaming, el trigger determina con qué frecuencia se procesan los datos.\n\n"
+
+            "El requisito es ejecutar la query cada 60 segundos usando micro-batches. "
+            "La configuración correcta es Trigger.ProcessingTime(\"1 minute\"), que programa un nuevo micro-batch "
+            "a un intervalo fijo y procesa cualquier dato nuevo que haya llegado desde el batch anterior.\n\n"
+
+            "Por qué esta opción es correcta:\n"
+            "- Trigger.ProcessingTime(\"1 minute\") ejecuta un micro-batch cada 60 segundos.\n"
+            "- Es el trigger estándar para cargas de streaming periódicas estilo batch.\n"
+            "- Spark comprueba si hay nuevos datos en cada intervalo y los procesa si existen.\n"
+            "- Soporta funcionalidad completa de Structured Streaming como aggregations, joins y watermarking.\n\n"
+
+            "Por qué las otras opciones son incorrectas:\n"
+            "- Trigger.Continuous(\"60 seconds\") usa modo de procesamiento continuo, no micro-batching, "
+            "y está diseñado para latencia ultra-baja más que para ejecución programada.\n"
+            "- Trigger.ProcessingTime(\"60000\") es inválido porque Spark espera un duration string "
+            "como \"60 seconds\" o \"1 minute\", no un string numérico bruto.\n"
+            "- Trigger.AvailableNow() procesa todos los datos disponibles en múltiples micro-batches y luego se detiene; "
+            "no se ejecuta repetidamente cada 60 segundos.\n"
+            "- Trigger.Once() procesa los datos disponibles una sola vez y termina, sin ejecución recurrente.\n\n"
+
+            "El procesamiento continuo intenta ejecución casi en tiempo real y no sigue un schedule fijo, "
+            "y además tiene soporte limitado para operaciones comparado con el modo micro-batch. "
+            "Por tanto, para ingesta periódica programada cada minuto, ProcessingTime es el trigger correcto."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q05_git_branch_behind",
+        "question": (
+            "Dos data engineers están trabajando en el mismo notebook en un Databricks Repo. Un/a engineer hace commit y "
+            "hace push de cambios a la rama remota. El/la otro/a engineer, sin saber de esta actualización, intenta hacer push de sus propios "
+            "cambios sin hacer pull primero. Recibe un error de Git indicando que su rama está behind.\n\n"
+            "¿Por qué ocurre este error y cómo debería resolverlo el/la engineer?"
+        ),
+        "options": [
+            "Hicieron commit del notebook con los ajustes de usuario de Git incorrectos y deberían configurar de nuevo las credenciales de Git.",
+            "La rama remota tiene nuevos commits que no han hecho pull; deben hacer un Git Pull para hacer merge antes de hacer push.",
+            "Databricks no soporta edición simultánea en Repos, así que el notebook debe bloquearse para uso exclusivo.",
+            "Su cluster local está fuera de sincronización con el control plane y deben reiniciarlo para aplicar cambios de Git.",
+            "El/la engineer intentó hacer push a una rama read-only y debe solicitar acceso de escritura al propietario del repo."
+        ],
+        "answer": "La rama remota tiene nuevos commits que no han hecho pull; deben hacer un Git Pull para hacer merge antes de hacer push.",
+        "explanation": (
+            "Git impide hacer push si la rama local está behind respecto a la rama remota. Otro usuario hizo push de nuevos commits, "
+            "así que el historial local está desactualizado. Permitir el push sobrescribiría el trabajo de otra persona.\n\n"
+
+            "El workflow correcto es:\n"
+            "1) Hacer pull de los últimos cambios del repositorio remoto\n"
+            "2) Hacer merge de esos cambios en la rama local (y resolver conflictos si es necesario)\n"
+            "3) Hacer push de la rama actualizada\n\n"
+
+            "Por qué las otras opciones son incorrectas:\n"
+            "- Credenciales de Git incorrectas causarían un error de autenticación, no un error de 'branch behind'.\n"
+            "- Databricks Repos SÍ soporta desarrollo colaborativo; Git gestiona la consistencia mediante merges.\n"
+            "- El estado del cluster no tiene nada que ver con el historial de Git ni con la sincronización del repositorio.\n"
+            "- Una rama read-only produciría un error de permisos, no un error de divergencia.\n\n"
+
+            "Git impone esta regla para evitar sobrescrituras accidentales y mantener la integridad del historial de commits. "
+            "La solución siempre es sincronizar con la rama remota (git pull), resolver conflictos si aparecen, "
+            "y solo entonces hacer push de los cambios."
+        ),
+    },
 ]
