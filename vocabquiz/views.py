@@ -5,13 +5,30 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
 from .vocab import VOCAB
-from .databricks_quiz import DATABRICKS_QUIZ  # EN
 
-# databricks_quiz_es.py también exporta DATABRICKS_QUIZ, lo importamos con alias:
+# ---------------------------
+# DATABRICKS ASSOCIATE
+# ---------------------------
+from .databricks_quiz import DATABRICKS_QUIZ as DATABRICKS_ASSOCIATE_QUIZ
+
 try:
-    from .databricks_quiz_es import DATABRICKS_QUIZ as DATABRICKS_QUIZ_ES  # ES
+    from .databricks_quiz_es import DATABRICKS_QUIZ as DATABRICKS_ASSOCIATE_QUIZ_ES
 except Exception:
-    DATABRICKS_QUIZ_ES = []
+    DATABRICKS_ASSOCIATE_QUIZ_ES = []
+
+# ---------------------------
+# DATABRICKS PROFESSIONAL
+# ---------------------------
+from .databricks_professional_quiz import (
+    DATABRICKS_PROFESSIONAL_QUIZ as DATABRICKS_PROFESSIONAL_QUIZ
+)
+
+try:
+    from .databricks_professional_quiz_es import (
+        DATABRICKS_PROFESSIONAL_QUIZ as DATABRICKS_PROFESSIONAL_QUIZ_ES
+    )
+except Exception:
+    DATABRICKS_PROFESSIONAL_QUIZ_ES = []
 
 
 def quiz_page(request):
@@ -118,8 +135,16 @@ def check_answer(request):
 
 
 # ---------------------------
-# DATABRICKS (exam=1|2|3|4|5|all|1es|2es|3es|4es|5es|alles)
+# DATABRICKS
+# track=associate|professional
+# exam=1|2|3|4|5|all|1es|2es|3es|4es|5es|alles
 # ---------------------------
+def _normalize_track(raw: str) -> str:
+    raw = (raw or "associate").strip().lower()
+    allowed = {"associate", "professional"}
+    return raw if raw in allowed else "associate"
+
+
 def _normalize_exam(raw: str) -> str:
     raw = (raw or "all").strip().lower()
     allowed = {"1", "2", "3", "4", "5", "all", "1es", "2es", "3es", "4es", "5es", "alles"}
@@ -139,17 +164,27 @@ def _base_exam_number(exam: str):
     return int(exam.replace("es", ""))
 
 
-def _get_dbx_bank(exam: str):
+def _get_dbx_bank(track: str, exam: str):
     """
-    Si piden ES y existe banco ES, úsalo; si no, cae a EN.
+    Devuelve el banco correcto según:
+    - track: associate | professional
+    - idioma: deducido desde exam
     """
-    if _is_es(exam) and DATABRICKS_QUIZ_ES:
-        return DATABRICKS_QUIZ_ES
-    return DATABRICKS_QUIZ
+    is_es = _is_es(exam)
+
+    if track == "professional":
+        if is_es and DATABRICKS_PROFESSIONAL_QUIZ_ES:
+            return DATABRICKS_PROFESSIONAL_QUIZ_ES
+        return DATABRICKS_PROFESSIONAL_QUIZ
+
+    # associate
+    if is_es and DATABRICKS_ASSOCIATE_QUIZ_ES:
+        return DATABRICKS_ASSOCIATE_QUIZ_ES
+    return DATABRICKS_ASSOCIATE_QUIZ
 
 
-def _get_dbx_questions_for_exam(exam: str):
-    bank = _get_dbx_bank(exam)
+def _get_dbx_questions_for_exam(track: str, exam: str):
+    bank = _get_dbx_bank(track, exam)
     ex_num = _base_exam_number(exam)
 
     if ex_num is None:
@@ -158,10 +193,10 @@ def _get_dbx_questions_for_exam(exam: str):
     return [q for q in bank if int(q.get("exam", 0)) == ex_num]
 
 
-def _get_dbx_pool(request, exam: str):
-    key = f"seen_dbx_exam_{exam}"
+def _get_dbx_pool(request, track: str, exam: str):
+    key = f"seen_dbx_{track}_exam_{exam}"
     seen = set(request.session.get(key, []))
-    questions = _get_dbx_questions_for_exam(exam)
+    questions = _get_dbx_questions_for_exam(track, exam)
     remaining = [i for i in range(len(questions)) if i not in seen]
     return key, seen, remaining, questions
 
@@ -184,11 +219,17 @@ def _pick_text(q: dict, is_es: bool):
 
 @require_http_methods(["GET"])
 def dbx_next(request):
+    track = _normalize_track(request.GET.get("track", "associate"))
     exam = _normalize_exam(request.GET.get("exam", "all"))
-    key, seen, remaining, questions = _get_dbx_pool(request, exam)
+    key, seen, remaining, questions = _get_dbx_pool(request, track, exam)
 
     if not remaining:
-        return JsonResponse({"done": True, "exam": exam, "total": len(questions)})
+        return JsonResponse({
+            "done": True,
+            "track": track,
+            "exam": exam,
+            "total": len(questions)
+        })
 
     idx = random.choice(remaining)
     q = questions[idx]
@@ -201,13 +242,12 @@ def dbx_next(request):
 
     is_es = _is_es(exam)
     question, _ = _pick_text(q, is_es)
-
-    # Multi si answer es lista
     is_multi = isinstance(q.get("answer"), list)
 
     return JsonResponse({
         "done": False,
         "type": "dbx-mcq",
+        "track": track,
         "exam": exam,
         "id": q.get("id", str(idx)),
         "question": question,
@@ -227,17 +267,19 @@ def dbx_check(request):
         return JsonResponse({"ok": False, "error": "Invalid JSON"}, status=400)
 
     qid = (data.get("id") or "").strip()
+    track = _normalize_track(data.get("track") or "associate")
     exam = _normalize_exam(data.get("exam") or "all")
-
-    # picked puede ser str (single) o list (multi)
     picked = data.get("picked")
 
-    bank = _get_dbx_bank(exam)
+    bank = _get_dbx_bank(track, exam)
     q = next((x for x in bank if x.get("id") == qid), None)
 
-    # fallback por si el banco ES está incompleto
-    if q is None and bank is not DATABRICKS_QUIZ:
-        q = next((x for x in DATABRICKS_QUIZ if x.get("id") == qid), None)
+    # fallback si el banco ES no tiene esa pregunta
+    if q is None:
+        if track == "professional":
+            q = next((x for x in DATABRICKS_PROFESSIONAL_QUIZ if x.get("id") == qid), None)
+        else:
+            q = next((x for x in DATABRICKS_ASSOCIATE_QUIZ if x.get("id") == qid), None)
 
     if q is None:
         return JsonResponse({"ok": False, "error": "Question not found"}, status=404)
@@ -269,19 +311,20 @@ def dbx_check(request):
 @require_http_methods(["GET"])
 def dbx_reset(request):
     """
-    /api/dbx/reset/?exam=1|2|3|4|5|all|1es|2es|3es|4es|5es|alles
-    - all/alles => borra progreso de todos
-    - X/Xes => borra solo ese
+    /api/dbx/reset/?track=associate|professional&exam=1|2|3|4|5|all|1es|2es|3es|4es|5es|alles
     """
+    track = _normalize_track(request.GET.get("track", "associate"))
     exam = _normalize_exam(request.GET.get("exam", "all"))
 
     if exam in {"all", "alles"}:
+        prefix = f"seen_dbx_{track}_exam_"
         for k in list(request.session.keys()):
-            if k.startswith("seen_dbx_exam_"):
+            if k.startswith(prefix):
                 del request.session[k]
-        return JsonResponse({"ok": True, "exam": exam})
+        return JsonResponse({"ok": True, "track": track, "exam": exam})
 
-    key = f"seen_dbx_exam_{exam}"
+    key = f"seen_dbx_{track}_exam_{exam}"
     if key in request.session:
         del request.session[key]
-    return JsonResponse({"ok": True, "exam": exam})
+
+    return JsonResponse({"ok": True, "track": track, "exam": exam})

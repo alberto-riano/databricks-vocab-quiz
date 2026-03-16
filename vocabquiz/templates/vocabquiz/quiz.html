@@ -44,14 +44,15 @@
 <body>
   <div class="card">
     <div class="row">
-      <h1 id="title">Vocab Quiz (B2)</h1>
+      <h1 id="title">Databricks Professional Quiz</h1>
       <div class="score" id="score">0/0</div>
     </div>
 
     <div class="row" style="margin-top: 8px;">
       <label class="muted" for="quiz">Quiz:</label>
       <select id="quiz">
-        <option value="dbx">Databricks</option>
+        <option value="dbx-professional" selected>Databricks Professional</option>
+        <option value="dbx-associate">Databricks Associate</option>
         <option value="vocab">Vocabulario</option>
       </select>
 
@@ -65,22 +66,31 @@
         </select>
       </span>
 
-      <!-- Examen Databricks -->
-      <span id="examWrap" class="row" style="gap: 8px; margin: 0; display:none;">
-        <label class="muted" for="exam">Examen:</label>
-        <select id="exam">
+      <!-- Examen Databricks Associate -->
+      <span id="examWrapAssociate" class="row" style="gap: 8px; margin: 0; display:none;">
+        <label class="muted" for="examAssociate">Examen:</label>
+        <select id="examAssociate">
           <option value="1">Examen 1 Ingles</option>
           <option value="1es">Examen 1 Español</option>
           <option value="2">Examen 2 Ingles</option>
           <option value="2es">Examen 2 Español</option>
           <option value="3">Examen 3 Ingles</option>
           <option value="3es">Examen 3 Español</option>
-
           <option value="4">Examen 4 Ingles</option>
           <option value="4es">Examen 4 Español</option>
           <option value="5">Examen 5 Ingles</option>
           <option value="5es">Examen 5 Español</option>
+          <option value="all">Todos Ingles</option>
+          <option value="alles">Todos Español</option>
+        </select>
+      </span>
 
+      <!-- Examen Databricks Professional -->
+      <span id="examWrapProfessional" class="row" style="gap: 8px; margin: 0; display:none;">
+        <label class="muted" for="examProfessional">Examen:</label>
+        <select id="examProfessional">
+          <option value="1">Examen 1 Ingles</option>
+          <option value="1es">Examen 1 Español</option>
           <option value="all">Todos Ingles</option>
           <option value="alles">Todos Español</option>
         </select>
@@ -103,8 +113,12 @@
     const quizEl = document.getElementById("quiz");
     const modeEl = document.getElementById("mode");
     const modeWrapEl = document.getElementById("modeWrap");
-    const examEl = document.getElementById("exam");
-    const examWrapEl = document.getElementById("examWrap");
+
+    const examAssociateEl = document.getElementById("examAssociate");
+    const examProfessionalEl = document.getElementById("examProfessional");
+    const examWrapAssociateEl = document.getElementById("examWrapAssociate");
+    const examWrapProfessionalEl = document.getElementById("examWrapProfessional");
+
     const scoreEl = document.getElementById("score");
     const btnNext = document.getElementById("btnNext");
     const btnReset = document.getElementById("btnReset");
@@ -113,6 +127,24 @@
     let correctCount = 0;
     let totalAnswered = 0;
     let locked = false;
+
+    function getDbxTrack() {
+      const q = quizEl.value;
+      if (q === "dbx-professional") return "professional";
+      return "associate";
+    }
+
+    function isDbxQuizSelected() {
+      const q = quizEl.value;
+      return q === "dbx-associate" || q === "dbx-professional";
+    }
+
+    function getSelectedExam() {
+      if (quizEl.value === "dbx-professional") {
+        return examProfessionalEl.value;
+      }
+      return examAssociateEl.value;
+    }
 
     function setScore(progress) {
       if (progress) {
@@ -140,14 +172,21 @@
     function applyQuizUi() {
       const q = quizEl.value;
 
-      if (q === "dbx") {
-        titleEl.textContent = "Databricks Quiz";
+      if (q === "dbx-associate") {
+        titleEl.textContent = "Databricks Associate Quiz";
         modeWrapEl.style.display = "none";
-        examWrapEl.style.display = "flex";
+        examWrapAssociateEl.style.display = "flex";
+        examWrapProfessionalEl.style.display = "none";
+      } else if (q === "dbx-professional") {
+        titleEl.textContent = "Databricks Professional Quiz";
+        modeWrapEl.style.display = "none";
+        examWrapAssociateEl.style.display = "none";
+        examWrapProfessionalEl.style.display = "flex";
       } else {
         titleEl.textContent = "Vocab Quiz (B2)";
         modeWrapEl.style.display = "flex";
-        examWrapEl.style.display = "none";
+        examWrapAssociateEl.style.display = "none";
+        examWrapProfessionalEl.style.display = "none";
       }
 
       resetLocalCountersOnly();
@@ -158,9 +197,10 @@
         const q = quizEl.value;
         let url = "/api/reset/";
 
-        if (q === "dbx") {
-          const exam = examEl.value;
-          url = `/api/dbx/reset/?exam=${encodeURIComponent(exam)}`;
+        if (q === "dbx-associate" || q === "dbx-professional") {
+          const exam = getSelectedExam();
+          const track = getDbxTrack();
+          url = `/api/dbx/reset/?track=${encodeURIComponent(track)}&exam=${encodeURIComponent(exam)}`;
         }
 
         const res = await fetch(url);
@@ -323,8 +363,9 @@
       promptEl.textContent = "Cargando...";
 
       try {
-        const exam = examEl.value;
-        const res = await fetch(`/api/dbx/next/?exam=${encodeURIComponent(exam)}`);
+        const exam = getSelectedExam();
+        const track = getDbxTrack();
+        const res = await fetch(`/api/dbx/next/?track=${encodeURIComponent(track)}&exam=${encodeURIComponent(exam)}`);
 
         if (!res.ok) {
           const txt = await res.text();
@@ -406,7 +447,12 @@
         const res = await fetch("/api/dbx/check/", {
           method: "POST",
           headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ id: current.id, picked, exam: current.exam })
+          body: JSON.stringify({
+            id: current.id,
+            picked,
+            track: current.track,
+            exam: current.exam
+          })
         });
 
         if (!res.ok) {
@@ -457,7 +503,12 @@
         const res = await fetch("/api/dbx/check/", {
           method: "POST",
           headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ id: current.id, picked: checked, exam: current.exam })
+          body: JSON.stringify({
+            id: current.id,
+            picked: checked,
+            track: current.track,
+            exam: current.exam
+          })
         });
 
         if (!res.ok) {
@@ -470,7 +521,6 @@
         if (data.ok) correctCount += 1;
         setScore(current.progress);
 
-        // marcar correcto/incorrecto visual
         const correctSet = new Set(Array.isArray(data.correct) ? data.correct : [data.correct]);
         const pickedSet = new Set(checked);
 
@@ -507,7 +557,7 @@
     // -------------------------
     async function loadQuestion() {
       const q = quizEl.value;
-      if (q === "dbx") return loadDbxQuestion();
+      if (q === "dbx-associate" || q === "dbx-professional") return loadDbxQuestion();
       return loadVocabQuestion();
     }
 
@@ -520,8 +570,15 @@
       }
     });
 
-    examEl.addEventListener("change", () => {
-      if (quizEl.value === "dbx") {
+    examAssociateEl.addEventListener("change", () => {
+      if (quizEl.value === "dbx-associate") {
+        resetLocalCountersOnly();
+        loadDbxQuestion();
+      }
+    });
+
+    examProfessionalEl.addEventListener("change", () => {
+      if (quizEl.value === "dbx-professional") {
         resetLocalCountersOnly();
         loadDbxQuestion();
       }

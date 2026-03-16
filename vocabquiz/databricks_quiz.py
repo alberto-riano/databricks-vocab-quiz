@@ -3317,6 +3317,849 @@ DATABRICKS_QUIZ = [
             "allowing scalable execution with interactive development."
         ),
     },
+    {
+        "exam": 4,
+        "id": "q16_ml_runtime_shared_environment",
+        "question": (
+            "A machine learning engineer is collaborating with a data science team to build and train models in Databricks. "
+            "They need to ensure that all team members are using the same version of Spark, Python libraries, and system "
+            "settings to avoid inconsistencies across environments. Also, the team wants to use built-in ML libraries like "
+            "MLflow and scikit-learn without having to install them manually.\n\n"
+            "What is the most effective way to meet these requirements?"
+        ),
+        "options": [
+            "Use a shared cluster configured with Databricks Runtime for Machine Learning",
+            "Configure a serverless SQL warehouse with MLflow installed as a custom library",
+            "Create a Unity Catalog schema with all required ML packages attached",
+            "Use a Delta Live Table pipeline to sync library versions across teams",
+            "Install libraries manually on each user’s cluster to ensure consistency"
+        ],
+        "answer": "Use a shared cluster configured with Databricks Runtime for Machine Learning",
+        "explanation": (
+            "The best solution is to use a shared cluster configured with Databricks Runtime for Machine Learning.\n\n"
+
+            "Databricks Runtime for ML is a preconfigured environment that includes popular machine learning libraries "
+            "such as MLflow, scikit-learn, TensorFlow, and XGBoost. Because all users attach to the same shared cluster, "
+            "they automatically run the same Spark version, Python environment, and library set, eliminating environment "
+            "drift and the classic 'works on my machine' problem.\n\n"
+
+            "This approach solves both requirements:\n"
+            "- Ensures environment consistency across all team members\n"
+            "- Provides built-in ML libraries without manual installation\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Serverless SQL warehouses are designed for SQL analytics and BI workloads, not ML development environments.\n"
+            "- Unity Catalog manages governance (tables, views, permissions), not Python runtime environments.\n"
+            "- Delta Live Tables orchestrate data pipelines, not library or environment versioning.\n"
+            "- Manual installation on individual clusters is error-prone and leads to inconsistent environments.\n\n"
+
+            "Using a shared ML Runtime cluster guarantees reproducible machine learning development and removes manual setup overhead."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q17_table_storage_location_commands",
+        "question": (
+            "A data engineer is reviewing a table called sales.orders in Databricks. They want to verify where the table’s "
+            "data is physically stored in cloud storage.\n\n"
+            "Which of the following SQL commands can be used to find the storage location of the table?\n\n"
+            "(Select two answers)"
+        ),
+        "options": [
+            "SELECT location FROM sales.orders",
+            "DESCRIBE DETAIL sales.orders",
+            "SELECT * FROM sales.orders LOCATION",
+            "DESCRIBE EXTENDED sales.orders",
+            "DESCRIBE TABLE sales.orders"
+        ],
+        "answer": [
+            "DESCRIBE DETAIL sales.orders",
+            "DESCRIBE EXTENDED sales.orders"
+        ],
+        "explanation": (
+            "To determine where a Databricks table is physically stored in cloud storage, you must inspect table metadata "
+            "rather than querying table data. Spark SQL provides metadata inspection commands that expose the storage path.\n\n"
+    
+            "DESCRIBE DETAIL sales.orders returns rich metadata including fields such as location, format/provider, tableType, "
+            "and creation information. This makes it very useful for understanding both logical and physical table properties.\n\n"
+    
+            "DESCRIBE EXTENDED sales.orders also returns extended metadata and includes the Location field when available, "
+            "allowing you to identify the exact cloud storage path (for example ABFSS or S3).\n\n"
+    
+            "Why the other options are incorrect:\n"
+            "- SELECT location FROM sales.orders assumes location is a column in the table, which normally does not exist.\n"
+            "- SELECT * FROM sales.orders LOCATION is invalid SQL syntax; LOCATION is not a query clause.\n"
+            "- DESCRIBE TABLE sales.orders only returns column definitions (name, type, comment) and does not include storage metadata.\n\n"
+    
+            "Therefore, metadata inspection commands — DESCRIBE DETAIL and DESCRIBE EXTENDED — are the correct way to find the "
+            "physical storage path of a table in Databricks."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q18_sql_warehouse_single_query_performance",
+        "question": (
+            "An SQL query run against a Databricks SQL warehouse is experiencing slow performance. "
+            "The team has identified that the latency is not caused by concurrent users or multiple queries, "
+            "but by a single complex query running against a large table.\n\n"
+            "What is the most appropriate configuration change to improve performance?"
+        ),
+        "options": [
+            "Increase the number of clusters in the scaling configuration",
+            "Restart the SQL warehouse to clear cached data",
+            "Increase the size of the cluster to improve compute resources for the query",
+            "Enable Photon acceleration for the warehouse",
+            "Enable query result caching"
+        ],
+        "answer": "Increase the size of the cluster to improve compute resources for the query",
+        "explanation": (
+            "The problem is a single heavy query over a large table, not concurrency. "
+            "Therefore scaling out (more clusters) does not help, because that only improves performance "
+            "when many users or many queries run at the same time.\n\n"
+    
+            "Increasing the cluster size directly increases CPU and memory available for the query, "
+            "allowing Spark/SQL execution to process large datasets and complex operations faster. "
+            "This is the most direct and reliable performance improvement.\n\n"
+    
+            "Why the other options are incorrect:\n"
+            "- Increasing the number of clusters improves concurrency, not single-query latency.\n"
+            "- Restarting the warehouse only clears memory state and does not increase compute capacity.\n"
+            "- Photon acceleration may improve execution, but warehouses already use Photon and scaling compute "
+            "is the primary configuration change for heavy queries.\n"
+            "- Result caching only helps repeated queries, not the first execution of a complex query.\n\n"
+    
+            "For slow performance caused by one large query, the correct action is vertical scaling "
+            "(bigger cluster), not horizontal scaling or caching."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q19_dlt_autoloader_cloudfiles",
+        "question": (
+            "A data engineer is troubleshooting a Delta Live Tables (DLT) pipeline and sees that a streaming source is "
+            "defined using the following code:\n\n"
+            "spark.readStream \\\n"
+            "    .format(\"cloudFiles\") \\\n"
+            "    .option(\"cloudFiles.format\", \"json\") \\\n"
+            "    .load(\"abfss://landing@datalake.dfs.core.windows.net/raw/\")\n\n"
+            "What does this indicate about the data ingestion method?"
+        ),
+        "options": [
+            "The pipeline uses a batch read from Azure Data Lake",
+            "The pipeline uses Kafka for real-time JSON ingestion",
+            "The pipeline uses Delta Lake’s transaction log for ingestion",
+            "The pipeline uses COPY INTO to ingest files from the raw zone",
+            "The pipeline uses Auto Loader to ingest streaming JSON files"
+        ],
+        "answer": "The pipeline uses Auto Loader to ingest streaming JSON files",
+        "explanation": (
+            "The combination of readStream and format(\"cloudFiles\") is the key signature of Databricks Auto Loader. "
+            "It indicates incremental streaming ingestion from cloud object storage rather than batch ingestion.\n\n"
+
+            "Auto Loader monitors a cloud storage directory (here ADLS Gen2 via abfss) and automatically discovers new files, "
+            "ingesting them efficiently with built-in schema inference and schema evolution support. The option "
+            "cloudFiles.format = json specifies the file format being incrementally processed.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Batch read: readStream explicitly indicates streaming ingestion, not batch processing.\n"
+            "- Kafka ingestion: Kafka sources use format(\"kafka\"), not cloudFiles.\n"
+            "- Delta transaction log: used for managing existing Delta tables, not ingesting new raw files.\n"
+            "- COPY INTO: a SQL batch ingestion method unrelated to Structured Streaming or Auto Loader.\n\n"
+
+            "Therefore, the pipeline is using Auto Loader to continuously ingest new JSON files from cloud storage."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q20_databricks_sql_alerts_purpose",
+        "question": (
+            "What is the primary purpose of an alert in the Databricks SQL environment?"
+        ),
+        "options": [
+            "To enforce access control policies on SQL dashboards using tags and ACLs",
+            "To track changes to Delta tables",
+            "To trigger notifications when the result of a scheduled query meets a condition",
+            "To periodically refresh SQL dashboards and apply real-time visual filters",
+            "To automatically apply cost-based optimization to SQL queries"
+        ],
+        "answer": "To trigger notifications when the result of a scheduled query meets a condition",
+        "explanation": (
+            "Databricks SQL alerts están diseñadas para monitorizar automáticamente el resultado de queries programadas. "
+            "Cuando se cumple una condición definida (por ejemplo, sales < 10000 o churn > 5%), la alerta se activa y envía "
+            "notificaciones mediante email o webhooks a usuarios o sistemas externos.\n\n"
+
+            "Propósito principal:\n"
+            "- Evaluar el output de una scheduled SQL query\n"
+            "- Detectar umbrales o anomalías en los datos\n"
+            "- Notificar automáticamente sin revisión manual de dashboards\n\n"
+
+            "Por qué es correcta:\n"
+            "- Permite automatizar monitoring basado en condiciones de negocio\n"
+            "- Funciona como sistema de alerting sobre métricas (ventas, churn, inventario, etc.)\n"
+            "- Habilita reacción inmediata ante cambios relevantes en datos\n\n"
+
+            "Por qué las otras opciones son incorrectas:\n"
+            "- El access control se gestiona con Unity Catalog, no con alerts\n"
+            "- El tracking de cambios lo hacen Delta logs y Unity Catalog\n"
+            "- El refresco de dashboards o filtros visuales no depende de alerts\n"
+            "- El cost-based optimization pertenece al motor SQL, no al sistema de alertas\n\n"
+
+            "Las alerts convierten una query en una regla automática de monitorización: "
+            "si la condición se cumple, se dispara la notificación."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q21_unity_catalog_multi_region_metastore",
+        "question": (
+            "A global enterprise has data distributed across multiple cloud regions. To improve performance and reduce "
+            "data movement costs, the company wants to implement Unity Catalog in a scalable way.\n\n"
+            "What is the recommended best practice for configuring Unity Catalog metastores in this case?"
+        ),
+        "options": [
+            "Use a single Unity Catalog metastore across all regions to simplify management",
+            "Deploy one metastore per workspace and synchronize them weekly",
+            "Assign each business unit a separate catalog inside a single global metastore",
+            "Use Hive metastores with custom audit logging for each region",
+            "Create one metastore per region to minimize egress costs and improve latency"
+        ],
+        "answer": "Create one metastore per region to minimize egress costs and improve latency",
+        "explanation": (
+            "Unity Catalog metastores are region-scoped at the account level. The recommended architecture in multi-region "
+            "deployments is to create one metastore per region so compute, storage, and metadata remain co-located.\n\n"
+
+            "Placing the metastore in the same region as the data avoids cross-region access, reducing latency and eliminating "
+            "cloud egress costs for data-intensive workloads. This is the scalable and supported approach for global platforms.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- A single global metastore introduces cross-region latency and network charges.\n"
+            "- Metastores cannot be created per workspace nor synchronized manually; they are account-level objects.\n"
+            "- Organizing business units into catalogs is valid governance design but does not solve regional performance issues.\n"
+            "- Hive metastores are legacy and lack Unity Catalog governance capabilities such as centralized access control and lineage."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q22_delta_sharing_external_tableau",
+        "question": (
+            "A marketing agency wants to share campaign performance data stored in Databricks with a partner that uses "
+            "Tableau for analytics but does not have a Databricks workspace. The partner requires direct access from their BI tool.\n\n"
+            "Which type of Delta Sharing should the agency use?"
+        ),
+        "options": [
+            "Unity Catalog external locations",
+            "Open Sharing protocol",
+            "Databricks-to-Databricks protocol",
+            "Databricks REST API",
+            "Lakehouse Federation"
+        ],
+        "answer": "Open Sharing protocol",
+        "explanation": (
+            "The correct answer is Open Sharing protocol because the recipient does not have a Databricks workspace and needs "
+            "direct access from an external BI tool (Tableau).\n\n"
+    
+            "Delta Sharing provides two main sharing models:\n"
+            "- Databricks-to-Databricks: requires both provider and recipient to have Unity Catalog-enabled Databricks workspaces.\n"
+            "- Open Sharing protocol: allows external systems (Tableau, Power BI, pandas, Spark, etc.) to securely read Delta tables "
+            "without requiring Databricks on the consumer side.\n\n"
+    
+            "Why this works:\n"
+            "- Provides governed, read-only access to Delta tables\n"
+            "- Supports direct integration with external BI tools\n"
+            "- Does not require the partner to run Databricks\n\n"
+    
+            "Why the other options are incorrect:\n"
+            "- Unity Catalog external locations manage storage access inside Databricks, not data sharing externally.\n"
+            "- Databricks-to-Databricks requires a Databricks workspace on both sides.\n"
+            "- Databricks REST API is for automation and management operations, not governed analytical data sharing.\n"
+            "- Lakehouse Federation queries external sources from Databricks, not the opposite direction.\n\n"
+    
+            "Therefore, Open Sharing protocol is the appropriate choice for securely sharing Delta tables with external analytics tools."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q23_medallion_architecture_layers",
+        "question": (
+            "A logistics company collects sensor data from delivery vehicles, including GPS location, engine status, and "
+            "temperature readings. This data is initially ingested in raw JSON format with inconsistent timestamps and missing "
+            "values. The data engineering team wants to detect patterns in delivery delays and create dashboards to monitor "
+            "performance trends across regions.\n\n"
+            "How should they organize their data using the Medallion Architecture?"
+        ),
+        "options": [
+            "Ingest raw sensor data into the Bronze layer, clean and standardize it in the Silver layer, and create aggregated performance metrics in the Gold layer",
+            "Use streaming jobs to continuously merge raw and aggregated data into one unified Silver table",
+            "Store raw data in CSV format, clean it using SQL Warehouses, and visualize it with Power BI",
+            "Load all sensor data into a single Delta table and add tags to distinguish raw vs processed records",
+            "Ingest data directly into the Gold layer and use dashboards to clean the data dynamically"
+        ],
+        "answer": "Ingest raw sensor data into the Bronze layer, clean and standardize it in the Silver layer, and create aggregated performance metrics in the Gold layer",
+        "explanation": (
+            "This scenario follows the standard Medallion Architecture refinement flow.\n\n"
+
+            "Bronze layer stores raw ingested data (semi-structured JSON, logs, or streaming inputs) exactly as received.\n"
+            "Silver layer performs cleansing and standardization such as handling missing values, fixing timestamps, applying schema enforcement, and enriching records.\n"
+            "Gold layer contains aggregated, analytics-ready datasets used for BI dashboards, KPIs, trends, and reporting.\n\n"
+
+            "Why the correct answer is correct:\n"
+            "- Raw sensor data belongs in Bronze\n"
+            "- Data quality fixes and normalization belong in Silver\n"
+            "- Aggregations for performance dashboards belong in Gold\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Merging raw and aggregated data in Silver breaks the layered refinement principle\n"
+            "- CSV storage and SQL Warehouse cleaning ignores Lakehouse optimization and governance\n"
+            "- Using a single Delta table with tags removes separation of concerns and hurts maintainability\n"
+            "- Gold is not intended for ingestion or cleaning; it is for curated analytics-ready data\n\n"
+
+            "Medallion Architecture improves scalability, reliability, auditability, and performance by progressively refining "
+            "data from raw ingestion to business-level insights."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q24_lakehouse_vs_warehouse_relationship",
+        "question": (
+            "Which of the following best describes the relationship between a Data Lakehouse and a traditional data warehouse?"
+        ),
+        "options": [
+            "A Data Lakehouse is simply a cloud-hosted version of a Data Warehouse.",
+            "A Data Lakehouse uses the same architecture as a Data Warehouse but adds streaming capabilities.",
+            "A Data Lakehouse separates raw and processed data into different storage systems.",
+            "A Data Lakehouse combines the capabilities of Data Lakes and Data Warehouses, enabling ACID transactions and support for both structured and unstructured data.",
+            "A Data Lakehouse completely replaces traditional Data Warehouses by storing only structured data."
+        ],
+        "answer": "A Data Lakehouse combines the capabilities of Data Lakes and Data Warehouses, enabling ACID transactions and support for both structured and unstructured data.",
+        "explanation": (
+            "The Data Lakehouse architecture unifies the openness and scalability of Data Lakes with the reliability, "
+            "performance, and management features of Data Warehouses.\n\n"
+    
+            "It provides transactional guarantees (ACID), schema enforcement, time travel, and supports BI, ML, batch, "
+            "and streaming workloads on the same storage layer.\n\n"
+    
+            "Why the other options are incorrect:\n"
+            "- A Lakehouse is not just a cloud-hosted warehouse; it is built on Data Lake storage with warehouse features.\n"
+            "- It is not simply a warehouse plus streaming — the architecture is fundamentally different.\n"
+            "- Raw and processed data remain in the same storage system (open formats like Delta), not separate systems.\n"
+            "- It does not store only structured data; it supports structured, semi-structured, and unstructured data.\n\n"
+    
+            "The key idea: the Lakehouse removes the traditional split between Data Lake and Data Warehouse by combining both into a single platform."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q25_multilanguage_notebook_magic_commands",
+        "question": (
+            "Which feature allows users to write and execute code in multiple languages within the same Databricks notebook?"
+        ),
+        "options": [
+            "Multi-kernel runtime attached to the notebook",
+            "Use of language-specific magic commands like %python, %sql, %scala, and %sh",
+            "Databricks Repos with integrated CI/CD pipelines",
+            "Magic commands engine using default notebook language setting",
+            "Cross-language SQL translation engine"
+        ],
+        "answer": "Use of language-specific magic commands like %python, %sql, %scala, and %sh",
+        "explanation": (
+            "Databricks notebooks support multiple programming languages within the same notebook through language magic commands.\n\n"
+
+            "Magic commands switch the execution context for a specific cell without changing the notebook’s default language. "
+            "This allows mixing Python, SQL, Scala, and shell commands seamlessly in one notebook.\n\n"
+
+            "Examples:\n"
+            "- %python executes Python code\n"
+            "- %sql executes SQL queries\n"
+            "- %scala executes Scala code\n"
+            "- %sh runs shell commands\n\n"
+
+            "All code still runs on the same cluster runtime; Databricks does not use multi-kernel notebooks like Jupyter variants.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Multi-kernel runtime: Databricks uses a single runtime, not multiple kernels.\n"
+            "- Databricks Repos: provide source control, not multi-language execution.\n"
+            "- Magic commands engine using default language: magic commands override the default language, not depend on it.\n"
+            "- Cross-language SQL translation engine: no such feature exists.\n\n"
+
+            "Therefore, language-specific magic commands are the mechanism enabling multi-language development inside one Databricks notebook."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q26_git_branch_behind_pull",
+        "question": (
+            "A data engineer is working in a Databricks Repo linked to a GitHub repository. "
+            "Before starting their work, they create a new feature branch and begin editing a notebook. "
+            "After a few hours, they try to commit and push their changes, but encounter an error indicating "
+            "their branch is behind the remote.\n\n"
+            "What should the engineer do next to resolve this issue?"
+        ),
+        "options": [
+            "Pull the latest changes from the remote repository to merge updates into their branch before pushing again",
+            "Delete their branch and recreate it from the main branch with a new name",
+            "Commit the notebook changes again using a different commit message",
+            "Restart their cluster and reinitialize the Databricks Repo to fetch updates",
+            "Force push their local changes to overwrite the remote branch"
+        ],
+        "answer": "Pull the latest changes from the remote repository to merge updates into their branch before pushing again",
+        "explanation": (
+            "The error indicates that the remote branch contains commits that the engineer’s local branch does not have. "
+            "Git blocks the push to prevent overwriting others’ work.\n\n"
+    
+            "The correct next step is to run a Git Pull to retrieve the latest remote changes, merge them into the local branch, "
+            "resolve any conflicts if necessary, and then push again.\n\n"
+    
+            "Why the other options are incorrect:\n"
+            "- Deleting and recreating the branch would discard local work and is not standard practice.\n"
+            "- Changing the commit message does not fix branch divergence.\n"
+            "- Restarting the cluster is unrelated to Git synchronization.\n"
+            "- Force push can overwrite teammates’ work and should be avoided in collaborative environments.\n\n"
+    
+            "In collaborative workflows, keeping the local branch synchronized with the remote repository "
+            "via Git Pull is required before pushing new commits."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q27_jobs_ui_run_history_location",
+        "question": (
+            "A job is configured to run on a custom cron expression in Databricks. The engineer wants to monitor the "
+            "execution history, including run status, duration, and any associated logs for each scheduled run.\n\n"
+            "Which location in the Databricks UI provides this information?"
+        ),
+        "options": [
+            "Driver logs in the Cluster UI",
+            "Metrics dashboard in the Admin Console",
+            "Job Runs tab in the Job details page",
+            "Monitoring tab in the SQL Warehouse",
+            "Revisions tab in the job’s associated notebook"
+        ],
+        "answer": "Job Runs tab in the Job details page",
+        "explanation": (
+            "The Job Runs tab in the Job details page is the primary place to monitor job execution in Databricks. "
+            "It provides a detailed history of every scheduled or manual run, including status (success/failure), "
+            "start and end timestamps, duration, logs, and output.\n\n"
+    
+            "This centralized view is specifically designed for operational monitoring and troubleshooting of jobs. "
+            "Other locations such as cluster driver logs or notebook revisions may contain partial information but do "
+            "not provide structured run history tracking.\n\n"
+    
+            "Why the other options are incorrect:\n"
+            "- Driver logs in the Cluster UI: contain low-level execution details but are not a centralized job history view.\n"
+            "- Metrics dashboard in the Admin Console: used for workspace-level usage and audit metrics, not individual jobs.\n"
+            "- Monitoring tab in the SQL Warehouse: tracks SQL warehouse performance, not scheduled jobs.\n"
+            "- Revisions tab in notebooks: shows notebook edit history, not job execution history."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q28_delta_optimize_small_files",
+        "question": (
+            "A Delta table has accumulated many small Parquet files due to frequent appends from streaming sources. "
+            "As a result, the read performance of the table has noticeably degraded. What command should the data engineer "
+            "use to compact these small files into larger ones and improve query performance?"
+        ),
+        "options": [
+            "COMPACT",
+            "ANALYZE TABLE",
+            "MERGE INTO",
+            "OPTIMIZE",
+            "VACUUM"
+        ],
+        "answer": "OPTIMIZE",
+        "explanation": (
+            "Delta Lake performance degrades when a table contains many small files, a common side-effect of streaming or frequent incremental writes. "
+            "Too many files increases metadata overhead and the number of file scans required for each query.\n\n"
+
+            "OPTIMIZE rewrites the table by compacting small Parquet files into fewer large files, significantly improving read performance and scan efficiency. "
+            "This is the standard file compaction operation in Delta Lake.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- COMPACT is not a valid Delta Lake SQL command.\n"
+            "- ANALYZE TABLE updates statistics for query planning but does not change file sizes.\n"
+            "- MERGE INTO performs upserts and does not affect physical file layout.\n"
+            "- VACUUM removes obsolete files from storage but does not merge small files.\n\n"
+
+            "Therefore, OPTIMIZE is the correct command to improve performance caused by small file fragmentation."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q29_read_json_path_spark_sql",
+        "question": (
+            "A data engineer is reviewing a Databricks notebook that queries JSON files from the following folder:\n"
+            "    /Volumes/data/customers/\n\n"
+            "The engineer notices the following query:\n"
+            "    SELECT * FROM `/Volumes/data/customers/`\n\n"
+            "However, the query fails with an error.\n\n"
+            "They need to rewrite the query using Spark SQL so that it:\n"
+            "- Reads JSON files directly from the path without registering a table\n"
+            "- Returns all columns from the JSON files\n"
+            "- Uses the correct syntax to specify the file format\n\n"
+            "Which of the following query will correctly resolve the error and return the data?"
+        ),
+        "options": [
+            "SELECT * FROM read.json('/Volumes/data/customers/')",
+            "SELECT * FROM dbfs.`/Volumes/data/customers/`",
+            "SELECT * FROM json.`/Volumes/data/customers/`",
+            "SELECT * FROM `/Volumes/data/customers/` USING JSON",
+            "SELECT * FROM format.`json:/Volumes/data/customers/`"
+        ],
+        "answer": "SELECT * FROM json.`/Volumes/data/customers/`",
+        "explanation": (
+            "In Spark SQL, files can be queried directly without creating a table by using a data source prefix before the path.\n\n"
+
+            "Why the correct answer is correct:\n"
+            "- The json. prefix tells Spark SQL to interpret the files using the JSON data source\n"
+            "- Backticks allow referencing a filesystem path as a table\n"
+            "- The query reads all JSON files in the directory and returns all columns automatically\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- read.json(...) is PySpark DataFrame API syntax, not SQL\n"
+            "- dbfs. paths cannot be queried using SELECT * FROM\n"
+            "- USING JSON works only in CREATE TABLE statements\n"
+            "- format.`json:path` is not valid Spark SQL syntax\n\n"
+
+            "Correct pattern in Spark SQL:\n"
+            "SELECT * FROM json.`/path/to/files/`\n\n"
+
+            "This allows querying raw files directly from storage without registering a table."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q30_asset_bundles_environment_consistency",
+        "question": (
+            "A data engineering team has noticed that job configurations in their dev, test, and prod workspaces often drift "
+            "apart because engineers make manual changes. They want a Databricks native declarative way to manage all environments "
+            "from source control so deployments are consistent and repeatable.\n\n"
+            "Which solution best addresses this need?"
+        ),
+        "options": [
+            "Use Databricks Asset Bundles",
+            "Use Delta Sharing to replicate job metadata across environments",
+            "Manually export and import job definitions between workspaces",
+            "Use dbx from Databricks Labs to apply job changes manually",
+            "Copy jobs between environments using the Databricks UI"
+        ],
+        "answer": "Use Databricks Asset Bundles",
+        "explanation": (
+            "Databricks Asset Bundles provide a native declarative deployment model using YAML configuration stored in Git. "
+            "Jobs, clusters, pipelines, and environment targets (dev, test, prod) are defined as code and deployed consistently "
+            "across workspaces, eliminating configuration drift caused by manual UI changes.\n\n"
+
+            "Why the correct answer is correct:\n"
+            "- Infrastructure-as-code approach for Databricks resources\n"
+            "- Version-controlled configurations in source control\n"
+            "- Repeatable and consistent multi-environment deployments\n"
+            "- CI/CD friendly and scalable\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Delta Sharing is designed for sharing data, not synchronizing job configurations\n"
+            "- Manual export/import is error-prone and does not prevent drift\n"
+            "- dbx is legacy and not the native recommended approach anymore\n"
+            "- Copying jobs via UI is manual and not scalable\n\n"
+
+            "Asset Bundles solve environment drift by treating Databricks resources as deployable code rather than manual configuration."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q31_sql_warehouse_auto_stop",
+        "question": (
+            "A data engineer is helping a finance analytics team manage costs in their Databricks SQL environment. "
+            "The team often runs reports during the day but frequently forgets to shut down the SQL warehouse afterward, "
+            "leading to unnecessary charges.\n\n"
+            "Which configuration should the data engineer apply to automatically shut down the SQL warehouse after it has "
+            "been idle for a specified period?"
+        ),
+        "options": [
+            "Compute Scaling Policy",
+            "Auto-Stop",
+            "Auto Termination",
+            "Cluster Timeout",
+            "Query Execution Timeout"
+        ],
+        "answer": "Auto-Stop",
+        "explanation": (
+            "The correct configuration is **Auto-Stop**.\n\n"
+
+            "Databricks SQL warehouses include an Auto-Stop setting that automatically shuts down the warehouse after a "
+            "configurable period of inactivity (no running or queued queries). This prevents unnecessary compute usage and "
+            "helps reduce operational costs in reporting environments where users may forget to stop resources manually.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Compute Scaling Policy controls how a warehouse scales resources under load, not whether it shuts down.\n"
+            "- Auto Termination applies to interactive clusters, not SQL warehouses.\n"
+            "- Cluster Timeout is not a valid SQL warehouse configuration.\n"
+            "- Query Execution Timeout limits query runtime duration but does not stop the warehouse.\n\n"
+
+            "Therefore, Auto-Stop is the correct cost-management configuration for Databricks SQL warehouses."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q32_cluster_env_variables_restart",
+        "question": (
+            "A data engineer adds new environment variables to a Databricks cluster's configuration via init scripts "
+            "to connect to an external storage system. However, after saving the changes and running their notebook, "
+            "the environment variables are not available.\n\n"
+            "What should the engineer do to ensure the new environment variables are applied?"
+        ),
+        "options": [
+            "Detach and reattach the notebook to refresh the configurations",
+            "Create a new notebook session to inherit the cluster changes",
+            "Restart the cluster to apply the updated environment variables",
+            "Re-run all cells in the notebook from the beginning",
+            "Enable Unity Catalog to propagate cluster configurations"
+        ],
+        "answer": "Restart the cluster to apply the updated environment variables",
+        "explanation": (
+            "Cluster configuration changes in Databricks — including environment variables and init scripts — are only "
+            "applied during cluster startup. Simply saving the configuration or starting a new notebook session does not "
+            "reload the runtime environment.\n\n"
+
+            "The correct solution is to restart the cluster so the runtime environment is recreated and the init scripts "
+            "run again, making the new environment variables available.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Detaching/reattaching a notebook does not reload cluster configuration.\n"
+            "- Creating a new notebook session still uses the already-running cluster environment.\n"
+            "- Re-running notebook cells only re-executes code and does not change runtime environment variables.\n"
+            "- Unity Catalog manages governance and data access, not cluster runtime configuration.\n\n"
+
+            "Key concept:\n"
+            "Cluster init scripts and environment variables take effect only at cluster startup, so a restart is required "
+            "whenever they are modified."
+        ),
+    },
+
+    {
+        "exam": 4,
+        "id": "q33_notebook_version_history_vs_repos_limitation",
+        "question": (
+            "Which of the following is a limitation of Databricks' built-in notebook version history compared to using "
+            "Databricks Repos?"
+        ),
+        "options": [
+            "It cannot be used with notebooks written in multiple languages.",
+            "It automatically syncs notebook changes with Git repositories without user intervention.",
+            "It does not allow multiple users to view or edit the notebook at the same time.",
+            "It lacks full Git version control features like branching, pull requests, and commit messages.",
+            "It does not support running the same notebook in different environments."
+        ],
+        "answer": "It lacks full Git version control features like branching, pull requests, and commit messages.",
+        "explanation": (
+            "Databricks’ built-in notebook revision history only provides basic snapshot tracking of changes. "
+            "It allows users to view and restore previous versions, but it is not a full source control system.\n\n"
+
+            "Databricks Repos, on the other hand, integrates directly with Git providers (GitHub, Azure DevOps, etc.) "
+            "and supports complete software development workflows such as branching, merging, pull requests, and "
+            "commit history with messages.\n\n"
+
+            "Why the correct answer is correct:\n"
+            "- Built-in history tracks revisions but lacks Git collaboration workflows.\n"
+            "- Repos enable proper CI/CD and team-based development practices.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Notebooks support multiple languages regardless of versioning method.\n"
+            "- Built-in history does NOT sync with Git automatically.\n"
+            "- Databricks supports collaborative editing in both notebooks and Repos.\n"
+            "- Notebooks can run in different environments by attaching to different clusters.\n\n"
+
+            "In short, notebook history is for lightweight recovery, while Repos provide full software engineering "
+            "version control."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q34_unity_catalog_catalog_explorer",
+        "question": (
+            "A data analyst wants to explore available tables and views in a Databricks workspace using a visual, interactive "
+            "interface. They need to browse through catalogs and schemas, view table-level and column-level comments and tags, "
+            "and understand object structure without writing SQL.\n\n"
+            "Which Unity Catalog feature should they use?"
+        ),
+        "options": [
+            "Discovery Hub",
+            "Data Map Viewer",
+            "Asset Insight Panel",
+            "Unity Metadata Tracker",
+            "Catalog Explorer"
+        ],
+        "answer": "Catalog Explorer",
+        "explanation": (
+            "Catalog Explorer is the visual interface provided by Unity Catalog to browse and understand data assets without "
+            "writing SQL. It allows users to navigate catalogs, schemas, tables, and views interactively and inspect metadata.\n\n"
+
+            "Through Catalog Explorer, users can:\n"
+            "- Browse catalogs and schemas hierarchically\n"
+            "- View table and column comments\n"
+            "- Inspect tags and metadata\n"
+            "- Understand data structure and lineage\n\n"
+
+            "This makes it ideal for analysts and non-technical users who need to explore datasets using the UI instead of queries.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Discovery Hub does not exist in Databricks\n"
+            "- Data Map Viewer is not a real platform feature\n"
+            "- Asset Insight Panel is a made-up concept\n"
+            "- Unity Metadata Tracker is not an actual Unity Catalog tool\n\n"
+
+            "Catalog Explorer (formerly called Data Explorer) is the official Unity Catalog UI for discovering and understanding "
+            "data assets visually."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q35_task_retry_configuration",
+        "question": (
+            "A data engineer observes that their scheduled job sometimes fails due to temporary issues with cloud storage "
+            "access. These failures are intermittent and often resolve on retry. The engineer wants Databricks to "
+            "automatically retry the failed task up to 5 times before marking it as failed.\n\n"
+            "Which configuration should the data engineer use to meet this requirement?"
+        ),
+        "options": [
+            "Job timeout configuration",
+            "Cluster recovery configuration",
+            "Notebook-level retry configuration",
+            "Task retry configuration",
+            "Job retry configuration"
+        ],
+        "answer": "Task retry configuration",
+        "explanation": (
+            "The correct configuration is task retry configuration.\n\n"
+
+            "In Databricks Jobs, retries are defined at the task level using the max_retries setting. This allows the platform "
+            "to automatically re-execute a failed task when failures are caused by transient issues such as temporary cloud "
+            "storage access problems, network hiccups, or short-lived service interruptions. Setting max_retries to 5 ensures "
+            "Databricks attempts the task again up to five times before marking it as failed.\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- Job timeout configuration controls how long a task can run before cancellation, not retries.\n"
+            "- Cluster recovery configuration does not exist as a retry mechanism for tasks.\n"
+            "- Notebook-level retry configuration would require manual try/except logic and is not reliable for production workflows.\n"
+            "- Job retry configuration is not supported at the job level; retries must be configured individually per task.\n\n"
+
+            "Task retries provide a robust way to handle intermittent infrastructure errors and are a best practice for "
+            "production ETL pipelines."
+        ),
+    },
+    {
+        "exam": 4,
+        "id": "q36_managed_table_without_location",
+        "question": (
+            "A data engineer creates a table in Databricks using the following SQL command:\n\n"
+            "CREATE TABLE bronze.sales\n"
+            "(\n"
+            "order_id STRING,\n"
+            "customer_id STRING,\n"
+            "total_amount DECIMAL(10,2),\n"
+            "order_date DATE\n"
+            ");\n\n"
+            "They do not specify a storage location. The table is now available for other team members to query.\n\n"
+            "Which of the following statements about this table is most likely true?"
+        ),
+        "options": [
+            "The table an external table.",
+            "The table is a temporary view",
+            "The table is a Delta Live Table",
+            "The table is global temporary object",
+            "The table is a managed table"
+        ],
+        "answer": "The table is a managed table",
+        "explanation": (
+            "When a table is created in Databricks using CREATE TABLE without specifying a LOCATION clause, "
+            "Databricks automatically creates a managed table.\n\n"
+
+            "In a managed table:\n"
+            "- Databricks controls both metadata and data storage\n"
+            "- Data is stored in the default managed storage location\n"
+            "- Dropping the table deletes the underlying data files\n\n"
+
+            "Why the other options are incorrect:\n"
+            "- External tables require an explicit LOCATION path\n"
+            "- Temporary views require CREATE TEMP VIEW\n"
+            "- Global temporary objects require CREATE GLOBAL TEMP VIEW\n"
+            "- Delta Live Tables are created via DLT pipelines, not standard CREATE TABLE"
+        ),
+    },
+    {
+            "exam": 4,
+            "id": "q37_insert_overwrite_delta_refresh",
+            "question": (
+                "A data engineer needs to refresh a Delta table named customer_data with new data from a staging table.\n"
+                "They want to:\n"
+                "- Replace all rows in the table\n"
+                "- Keep the existing schema and table metadata\n"
+                "- Avoid dropping and recreating the table\n\n"
+                "Which SQL command should they use?"
+            ),
+            "options": [
+                "OVERWRITE TABLE customer_data SELECT * FROM staging_table",
+                "INSERT OVERWRITE TABLE customer_data SELECT * FROM staging_table",
+                "MERGE INTO customer_data USING staging_table",
+                "REPLACE INTO customer_data SELECT * FROM staging_table",
+                "CREATE OR REPLACE TABLE customer_data AS SELECT * FROM staging_table"
+            ],
+            "answer": "INSERT OVERWRITE TABLE customer_data SELECT * FROM staging_table",
+            "explanation": (
+                "The correct command is INSERT OVERWRITE TABLE.\n\n"
+    
+                "This operation replaces all rows in the existing Delta table while preserving the table definition, schema, "
+                "permissions, and metadata. It performs a full refresh without dropping the table, which makes it the safest "
+                "and recommended approach for reloading data.\n\n"
+    
+                "Why the other options are incorrect:\n"
+                "- OVERWRITE TABLE is not valid Delta SQL syntax (must use INSERT OVERWRITE TABLE).\n"
+                "- MERGE INTO performs conditional upserts and does not fully replace all rows unless complex logic is written.\n"
+                "- REPLACE INTO is not a valid Databricks SQL command.\n"
+                "- CREATE OR REPLACE TABLE drops and recreates the table, potentially losing metadata and violating the requirement.\n\n"
+    
+                "INSERT OVERWRITE TABLE performs an atomic full-table refresh while keeping structure intact."
+            ),
+    },
+    {
+        "exam": 4,
+        "id": "q38_databricks_jobs_automation_notifications",
+        "question": (
+            "A data engineer at a manufacturing company manages a daily ETL process that collects machine telemetry "
+            "data from cloud storage, transforms it, and saves it to a Delta table. This process must run every day at 5AM "
+            "without manual intervention, and the engineer wants to receive notifications if the process encounters a failure. "
+            "If the process succeeds, business users should be notified that the data is available for reporting.\n\n"
+            "Which Databricks feature should be used to implement this automation?"
+        ),
+        "options": [
+            "Databricks Triggers",
+            "Databricks Pipelines",
+            "Databricks Schedulers",
+            "Databricks Task Scheduler",
+            "Databricks Jobs"
+        ],
+        "answer": "Databricks Jobs",
+        "explanation": (
+            "Databricks Jobs (Workflows) provide native scheduling and automation capabilities.\n\n"
+    
+            "Capabilities include:\n"
+            "- Cron-based scheduling (e.g., daily at 5AM)\n"
+            "- Multi-task workflows (ETL pipelines)\n"
+            "- Automatic retries and monitoring\n"
+            "- Email or webhook notifications on success or failure\n\n"
+    
+            "Why the correct answer is correct:\n"
+            "- The requirement includes scheduling + automation + alerting\n"
+            "- Jobs are the only feature that supports all three together\n\n"
+    
+            "Why the other options are incorrect:\n"
+            "- Databricks Triggers: Refers to streaming triggers, not job orchestration\n"
+            "- Databricks Pipelines: DLT handles data processing but scheduling/alerts rely on Jobs\n"
+            "- Databricks Schedulers: Not a standalone product feature\n"
+            "- Databricks Task Scheduler: Not an official Databricks component\n\n"
+    
+            "Databricks Jobs is the platform’s orchestration layer for production ETL workloads."
+        )
+    },
+
 
 ]
 
