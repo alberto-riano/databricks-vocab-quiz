@@ -174,3 +174,5 @@ o
 ```bash
 ngrok http 8000
 ```
+http://127.0.0.1:8000/quiz/databricks/
+http://127.0.0.1:8000/quiz/english/

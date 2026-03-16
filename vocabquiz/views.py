@@ -31,8 +31,12 @@ except Exception:
     DATABRICKS_PROFESSIONAL_QUIZ_ES = []
 
 
-def quiz_page(request):
-    return render(request, "vocabquiz/quiz.html")
+def quiz_databricks_page(request):
+    return render(request, "vocabquiz/quiz_databricks.html")
+
+
+def quiz_english_page(request):
+    return render(request, "vocabquiz/quiz_english.html")
 
 
 # ---------------------------
@@ -177,7 +181,6 @@ def _get_dbx_bank(track: str, exam: str):
             return DATABRICKS_PROFESSIONAL_QUIZ_ES
         return DATABRICKS_PROFESSIONAL_QUIZ
 
-    # associate
     if is_es and DATABRICKS_ASSOCIATE_QUIZ_ES:
         return DATABRICKS_ASSOCIATE_QUIZ_ES
     return DATABRICKS_ASSOCIATE_QUIZ
@@ -274,7 +277,6 @@ def dbx_check(request):
     bank = _get_dbx_bank(track, exam)
     q = next((x for x in bank if x.get("id") == qid), None)
 
-    # fallback si el banco ES no tiene esa pregunta
     if q is None:
         if track == "professional":
             q = next((x for x in DATABRICKS_PROFESSIONAL_QUIZ if x.get("id") == qid), None)

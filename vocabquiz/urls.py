@@ -2,7 +2,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("", views.quiz_page, name="quiz"),
+    path("", views.quiz_databricks_page, name="quiz"),
+    path("quiz/databricks/", views.quiz_databricks_page, name="quiz_databricks"),
+    path("quiz/english/", views.quiz_english_page, name="quiz_english"),
 
     # VOCAB
     path("api/next/", views.next_question, name="next_question"),

@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>English Quiz</title>
+
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:0;padding:24px;background:#f6f7fb}
+.card{max-width:720px;margin:auto;background:#fff;border-radius:16px;padding:20px;box-shadow:0 10px 25px rgba(0,0,0,.08)}
+h1{margin:0 0 12px;font-size:22px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+select,button,input[type=text]{font-size:16px;padding:10px 12px;border-radius:10px;border:1px solid #ddd;background:#fff}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.65}
+.primary{background:#111;color:#fff;border-color:#111}
+.prompt{margin:18px 0;padding:14px;border-radius:12px;background:#f1f3ff;font-size:18px;white-space:pre-wrap}
+.options{display:grid;gap:10px}
+.opt{text-align:left;width:100%;white-space:pre-wrap}
+.status{margin-top:14px;font-size:15px}
+.ok{color:#0a7a2f;font-weight:600}
+.bad{color:#b00020;font-weight:600}
+.score{margin-left:auto;font-weight:700}
+.muted{color:#666}
+.explain{margin-top:10px;padding:12px;border-radius:12px;background:#f7f7f7;white-space:pre-wrap}
+
+.progress{height:6px;background:#eee;border-radius:6px;margin:10px 0}
+.bar{height:100%;background:#4f6df5;border-radius:6px;width:0%}
+
+.opt.active{
+  border-color:#4f6df5;
+  box-shadow:0 0 0 3px rgba(79,109,245,.16);
+  background:#f7f9ff;
+}
+
+.actionsRow{display:flex;gap:10px;flex-wrap:wrap}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="row">
+<h1 id="title">English Quiz</h1>
+<div class="score" id="score">0/0</div>
+</div>
+
+<div class="progress"><div id="bar" class="bar"></div></div>
+
+<div class="row">
+<label class="muted">Modo:</label>
+<select id="mode">
+  <option value="es-en">Español → Inglés</option>
+  <option value="en-es">Inglés → Español</option>
+  <option value="es-en-write">Escribir</option>
+</select>
+
+<button id="btnReset">Reiniciar</button>
+<button id="btnPrev">Atrás</button>
+<button id="btnNext" class="primary">Siguiente</button>
+</div>
+
+<div id="prompt" class="prompt">Pulsa “Siguiente”.</div>
+<div id="options" class="options"></div>
+<div id="status" class="status"></div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id)
+
+const prompt = $("prompt")
+const options = $("options")
+const status = $("status")
+const mode = $("mode")
+const score = $("score")
+const bar = $("bar")
+
+const btnNext = $("btnNext")
+const btnPrev = $("btnPrev")
+const btnReset = $("btnReset")
+
+let current = null
+let history = []
+let historyIndex = -1
+let correct = 0
+let answered = 0
+let locked = false
+let activeOptionIndex = -1
+
+function clone(obj){
+  return JSON.parse(JSON.stringify(obj))
+}
+
+function getNavigableOptions(){
+  return [...options.querySelectorAll(".opt")]
+}
+
+function setActiveOption(idx){
+  const items = getNavigableOptions()
+  if(!items.length){
+    activeOptionIndex = -1
+    return
+  }
+
+  if(idx < 0) idx = 0
+  if(idx >= items.length) idx = items.length - 1
+
+  items.forEach(el => el.classList.remove("active"))
+  items[idx].classList.add("active")
+  activeOptionIndex = idx
+}
+
+function setActiveFromElement(el){
+  const items = getNavigableOptions()
+  const idx = items.indexOf(el)
+  if(idx >= 0) setActiveOption(idx)
+}
+
+function resetOptionNavigation(){
+  activeOptionIndex = -1
+}
+
+function initOptionNavigation(){
+  const items = getNavigableOptions()
+  if(items.length) setActiveOption(0)
+}
+
+function isTypingTarget(el){
+  if(!el) return false
+  const tag = (el.tagName || "").toLowerCase()
+  return tag === "input" || tag === "textarea" || tag === "select"
+}
+
+function updateScore(progress){
+  score.textContent = `${correct}/${answered}`
+
+  if(progress){
+    score.textContent += ` · ${progress.seen}/${progress.total}`
+    bar.style.width = (progress.seen / progress.total * 100) + "%"
+  } else {
+    bar.style.width = "0%"
+  }
+}
+
+function clearQuestionArea(){
+  options.innerHTML = ""
+  status.textContent = ""
+  resetOptionNavigation()
+}
+
+function updatePrevButton(){
+  btnPrev.disabled = historyIndex <= 0
+}
+
+function resetLocal(){
+  correct = 0
+  answered = 0
+  history = []
+  historyIndex = -1
+  current = null
+  locked = false
+  clearQuestionArea()
+  prompt.textContent = "Pulsa “Siguiente”."
+  updateScore()
+  updatePrevButton()
+}
+
+async function resetGame(){
+  await fetch("/api/reset/")
+  resetLocal()
+  status.textContent = "🔄 Reiniciado"
+}
+
+function createHistoryEntry(questionData){
+  return {
+    question: clone(questionData),
+    selected: null,
+    result: null,
+    answeredSnapshot: answered,
+    correctSnapshot: correct
+  }
+}
+
+function saveAnswerInHistory(selected, result){
+  if(historyIndex < 0) return
+  const entry = history[historyIndex]
+  entry.selected = selected
+  entry.result = clone(result)
+  entry.answeredSnapshot = answered
+  entry.correctSnapshot = correct
+}
+
+function renderStatus(result){
+  status.innerHTML = result.ok
+    ? `<span class='ok'>✅ Correcto</span>`
+    : `<span class='bad'>❌ Incorrecto</span> <span class="muted">→ Correcta: <b>${result.expected}</b></span>`
+}
+
+function paintMcqResult(result, selected){
+  const buttons = [...options.querySelectorAll(".opt")]
+  buttons.forEach(b => {
+    if(b.textContent === result.expected){
+      b.style.borderColor = "#0a7a2f"
+      b.style.boxShadow = "0 0 0 3px rgba(10,122,47,.15)"
+    }
+    if(b.textContent === selected && !result.ok){
+      b.style.borderColor = "#b00020"
+      b.style.boxShadow = "0 0 0 3px rgba(176,0,32,.12)"
+    }
+    if(b.textContent === selected){
+      b.classList.add("active")
+    }
+    b.disabled = true
+  })
+}
+
+function paintWriteResult(entry){
+  const input = options.querySelector("#writeInput")
+  const btn = options.querySelector("#btnCheckWrite")
+  if(input){
+    input.value = entry.selected || ""
+    input.disabled = true
+  }
+  if(btn) btn.disabled = true
+}
+
+function renderQuestion(questionData, entry = null, readOnly = false){
+  current = clone(questionData)
+  clearQuestionArea()
+  locked = false
+
+  if(current.done){
+    prompt.textContent = "✅ Has terminado todas las palabras en este modo."
+    return
+  }
+
+  prompt.textContent = current.prompt
+  updateScore(current.progress)
+
+  if(current.type === "mcq"){
+    current.options.forEach(opt => {
+      const b = document.createElement("button")
+      b.className = "opt"
+      b.textContent = opt
+
+      b.onclick = () => {
+        if(locked || readOnly) return
+        setActiveFromElement(b)
+        answerMcq(opt)
+      }
+
+      b.addEventListener("mouseenter", () => {
+        if(locked || readOnly) return
+        setActiveFromElement(b)
+      })
+
+      b.addEventListener("click", () => {
+        if(locked || readOnly) return
+        setActiveFromElement(b)
+      })
+
+      options.appendChild(b)
+    })
+
+    initOptionNavigation()
+
+    if(entry?.selected){
+      const target = [...options.querySelectorAll(".opt")].find(b => b.textContent === entry.selected)
+      if(target) setActiveFromElement(target)
+    }
+
+    if(entry?.result){
+      locked = true
+      paintMcqResult(entry.result, entry.selected)
+      renderStatus(entry.result)
+    }
+
+    return
+  }
+
+  const wrap = document.createElement("div")
+  wrap.className = "actionsRow"
+
+  const input = document.createElement("input")
+  input.type = "text"
+  input.placeholder = "Escribe la respuesta…"
+  input.id = "writeInput"
+  input.style.flex = "1"
+  input.style.minWidth = "220px"
+
+  const btn = document.createElement("button")
+  btn.id = "btnCheckWrite"
+  btn.textContent = "Comprobar"
+  btn.className = "primary"
+  btn.onclick = answerWrite
+
+  wrap.appendChild(input)
+  wrap.appendChild(btn)
+  options.appendChild(wrap)
+
+  if(entry?.selected){
+    input.value = entry.selected
+  }
+
+  if(entry?.result){
+    locked = true
+    paintWriteResult(entry)
+    renderStatus(entry.result)
+    return
+  }
+
+  input.addEventListener("keydown", async (e) => {
+    if(e.key !== "Enter") return
+    e.preventDefault()
+
+    if(!locked){
+      await answerWrite()
+    } else {
+      btnNext.click()
+    }
+  })
+
+  setTimeout(() => input.focus(), 0)
+}
+
+function restoreHistoryEntry(index){
+  const entry = history[index]
+  if(!entry) return
+
+  historyIndex = index
+  answered = entry.answeredSnapshot
+  correct = entry.correctSnapshot
+  updatePrevButton()
+
+  const readOnly = !!entry.result
+  renderQuestion(entry.question, entry, readOnly)
+}
+
+async function loadQuestion(){
+  locked = false
+  clearQuestionArea()
+  prompt.textContent = "Cargando..."
+
+  if(historyIndex >= 0 && historyIndex < history.length - 1){
+    restoreHistoryEntry(historyIndex + 1)
+    return
+  }
+
+  const res = await fetch(`/api/next/?mode=${encodeURIComponent(mode.value)}`)
+  const data = await res.json()
+
+  current = data
+
+  if(current.done){
+    prompt.textContent = "✅ Has terminado todas las palabras en este modo."
+    options.innerHTML = ""
+    return
+  }
+
+  history.push(createHistoryEntry(current))
+  historyIndex = history.length - 1
+  updatePrevButton()
+
+  renderQuestion(current)
+}
+
+function answerMcq(picked){
+  if(locked) return
+  locked = true
+  answered++
+
+  const data = {
+    ok: picked === current.answer,
+    expected: current.answer
+  }
+
+  if(data.ok) correct++
+  updateScore(current.progress)
+
+  saveAnswerInHistory(picked, data)
+  paintMcqResult(data, picked)
+  renderStatus(data)
+}
+
+async function answerWrite(){
+  if(locked) return
+
+  const input = options.querySelector("#writeInput")
+  const typed = (input?.value || "").trim()
+  if(!typed) return
+
+  locked = true
+  answered++
+
+  const res = await fetch("/api/check/", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({expected: current.answer, typed})
+  })
+
+  const data = await res.json()
+
+  if(data.ok) correct++
+  updateScore(current.progress)
+
+  saveAnswerInHistory(typed, data)
+  paintWriteResult({selected: typed})
+  renderStatus(data)
+}
+
+function goPrev(){
+  if(historyIndex <= 0) return
+  restoreHistoryEntry(historyIndex - 1)
+}
+
+btnNext.onclick = loadQuestion
+btnPrev.onclick = goPrev
+btnReset.onclick = resetGame
+
+mode.onchange = () => {
+  resetLocal()
+  loadQuestion()
+}
+
+document.addEventListener("keydown", e => {
+  if(isTypingTarget(e.target)) return
+
+  if(e.key === "ArrowDown"){
+    e.preventDefault()
+    const items = getNavigableOptions()
+    if(!items.length) return
+    setActiveOption(activeOptionIndex < 0 ? 0 : activeOptionIndex + 1)
+    return
+  }
+
+  if(e.key === "ArrowUp"){
+    e.preventDefault()
+    const items = getNavigableOptions()
+    if(!items.length) return
+    setActiveOption(activeOptionIndex < 0 ? 0 : activeOptionIndex - 1)
+    return
+  }
+
+  if(e.key === "Enter"){
+    const items = getNavigableOptions()
+    if(activeOptionIndex >= 0 && items[activeOptionIndex]){
+      e.preventDefault()
+      items[activeOptionIndex].click()
+      return
+    }
+
+    const input = options.querySelector("#writeInput")
+    const btn = options.querySelector("#btnCheckWrite")
+    if(input && btn && document.activeElement !== mode){
+      e.preventDefault()
+      if(!locked){
+        btn.click()
+      } else {
+        btnNext.click()
+      }
+    }
+    return
+  }
+
+  if(e.key === "ArrowRight" || e.key === " "){
+    e.preventDefault()
+    btnNext.click()
+    return
+  }
+
+  if(e.key === "ArrowLeft"){
+    e.preventDefault()
+    btnPrev.click()
+  }
+})
+
+resetLocal()
+</script>
+</body>
+</html>
