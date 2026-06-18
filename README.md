@@ -28,7 +28,7 @@ Las preguntas están definidas en estructuras JSON dentro del código Python.
 # Requisitos
 
 - Python 3
-- Django
+- Django`
 - Entorno virtual recomendado
 
 ---
@@ -176,3 +176,68 @@ ngrok http 8000
 ```
 http://127.0.0.1:8000/quiz/databricks/
 http://127.0.0.1:8000/quiz/english/
+
+
+## PROMPT GEMINI
+
+Tengo un vídeo donde hago scroll por preguntas de un examen de práctica de Databricks.
+Extrae TODAS las preguntas y devuélvelas EXACTAMENTE en el siguiente formato Python.
+
+NOMBRE DE LA VARIABLE: DATABRICKS_PROFESSIONAL_QUIZ   ← usa este exacto
+NÚMERO DE EXAMEN: 2   ← usa este exacto en el campo "exam"
+
+═══════════════════════════════════════════════
+FORMATO (añade solo los nuevos dicts, sin la variable, yo los pegaré):
+═══════════════════════════════════════════════
+
+    {
+        "exam": 2,
+        "id": "q01_nombre_corto_snake_case",
+        "question": "Texto completo de la pregunta tal cual aparece.",
+        "options": [
+            "Opción A",
+            "Opción B",
+            "Opción C",
+            "Opción D",
+        ],
+        "answer": "Opción correcta (texto IDÉNTICO al de options)",
+        "explanation": "Por qué es correcta y por qué las demás están mal.",
+    },
+
+═══════════════════════════════════════════════
+REGLAS OBLIGATORIAS:
+═══════════════════════════════════════════════
+
+1. "exam": siempre el número que yo te indique (aquí: 2).
+
+2. "id": snake_case único, máx. 5 palabras, describe el tema. Numera en orden: q01_, q02_, ...
+
+3. "question": texto completo tal cual aparece. Usa \n para saltos de línea si los hay.
+   Para preguntas largas usa concatenación con paréntesis:
+   "question": (
+       "Primera parte...\n\n"
+       "Segunda parte..."
+   ),
+
+4. "options": lista con TODAS las opciones en el mismo orden que en el vídeo.
+   Si hay código dentro de una opción, usa \n para los saltos de línea.
+   IMPORTANTE — comillas en opciones con código:
+   • Si el texto de la opción contiene comillas dobles, usa comillas simples para la cadena:
+     'df.withColumn("col", func())'   ← correcto
+     "df.withColumn("col", func())"   ← INCORRECTO, rompe Python
+
+5. "answer": texto IDÉNTICO (carácter por carácter) a como aparece en "options".
+   - Una respuesta correcta → string: "answer": "Opción A"
+   - Varias respuestas correctas → lista: "answer": ["Opción A", "Opción C"]
+   IMPORTANTE: los valores que uses en "answer" deben coincidir exactamente 
+   con cómo están escritos en "options" (incluida versión de API, mayúsculas, etc.)
+
+6. "explanation": explica por qué la respuesta es correcta y por qué las demás están mal.
+   Usa los mismos valores exactos (versiones de API, nombres de endpoints, etc.) 
+   que aparecen en la pregunta y las opciones. No inventes variaciones.
+
+7. Si no puedes leer bien un texto, márcalo:  # REVISAR: texto poco legible
+
+8. Devuelve SOLO los dicts Python listos para pegar dentro de una lista, sin ningún 
+   texto extra, sin bloques ```python, sin la variable, sin corchetes de lista.
+   Empieza directamente con "    {" y termina con "    },"

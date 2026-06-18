@@ -16,4 +16,10 @@ DATABRICKS_PROFESSIONAL_QUIZ = [
             "• COMPACT no es un comando de Databricks (aunque describe la acción)."
         ),
     },
+
+    # ---------------- EXAM 2 ----------------
+    # TODO: añadir preguntas del examen 2 (ES)
+
+    # ---------------- EXAM 3 ----------------
+    # TODO: añadir preguntas del examen 3 (ES)
 ]
