@@ -109,7 +109,30 @@
   #prompt {
     margin: 0 0 18px; padding: 18px 20px; border-radius: var(--radius);
     background: var(--accent-soft); border-left: 4px solid var(--accent);
-    font-size: 16.5px; line-height: 1.65; white-space: pre-wrap; color: var(--text);
+    font-size: 16.5px; line-height: 1.65; color: var(--text);
+  }
+  #prompt .q-p { margin: 0 0 10px; }
+  #prompt .q-p:last-child { margin-bottom: 0; }
+  #prompt .q-h {
+    margin: 8px 0 6px;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: .2px;
+    color: #1f2937;
+    text-transform: uppercase;
+  }
+  #prompt .q-code,
+  #prompt .q-table {
+    margin: 8px 0 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #c7d2fe;
+    background: #f8faff;
+    overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 13.5px;
+    line-height: 1.45;
+    white-space: pre;
   }
   .options { display: grid; gap: 10px; }
   .opt {
@@ -199,6 +222,7 @@
         <option value="1">1 EN</option><option value="1es">1 ES</option>
         <option value="2">2 EN</option><option value="2es">2 ES</option>
         <option value="3">3 EN</option><option value="3es">3 ES</option>
+        <option value="4">4 EN</option><option value="4es">4 ES</option>
         <option value="all">All EN</option><option value="alles">All ES</option>
       </select>
     </span>
@@ -231,6 +255,95 @@ let current=null,history=[],historyIndex=-1,correct=0,answered=0,streak=0,locked
 const getTrack=()=>quizEl.value==="dbx-professional"?"professional":"associate"
 const getExam=()=>quizEl.value==="dbx-professional"?examProfessional.value:examAssociate.value
 const getOrder=()=>orderMode
+const escapeHtml=s=>(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#39;")
+const isPipeLine=line=>line.includes("|")
+const SQL_KEYWORDS=/\b(SELECT|FROM|WHERE|GROUP BY|ORDER BY|CREATE|DROP|TABLE|LOCATION|AS|INSERT|UPDATE|DELETE|MERGE|WITH|JOIN|ON|HAVING|VALUES)\b/i
+function isLikelySingleLineCode(line){
+  const t=(line||"").trim()
+  if(!t)return false
+  const hasDictLike=t.includes("=")&&t.includes(":")&&(/["']/.test(t)||t.includes("{")||t.includes("}"))
+  const hasMethodChain=/\.[A-Za-z_]\w*\(/.test(t)
+  const hasSqlShape=SQL_KEYWORDS.test(t)
+  const hasPseudoCode=t.includes("=")&&(/[()]/.test(t)||t.includes("->")||t.includes("::"))
+  return (hasDictLike&&t.length>=40)||hasMethodChain||hasSqlShape||hasPseudoCode
+}
+function isLikelyCodeLine(line){
+  const t=(line||"").trim()
+  if(!t)return false
+  if(/^[_\-.]{8,}\\?$/.test(t))return true
+  if(t.startsWith(".")||t.endsWith("\\"))return true
+  if(/\b(readStream|writeStream|spark)\b/i.test(t))return true
+  if(SQL_KEYWORDS.test(t))return true
+  if(/\.option\(|\.format\(|\.load\(|\.table\(|\.sql\(/.test(t))return true
+  if(/^\w+[\w.]*\s*=\s*.+/.test(t))return true
+  if(/^[A-Za-z_][\w.]*\s*\(.+\)\s*$/.test(t))return true
+  if(/[{}()[\];]/.test(t)&&/[=().]/.test(t))return true
+  return false
+}
+function formatPromptText(text){
+  const lines=(text||"").replace(/\r\n/g,"\n").split("\n")
+  const out=[]
+  let paragraph=[]
+  const flushParagraph=()=>{
+    if(!paragraph.length)return
+    out.push('<p class="q-p">'+paragraph.map(escapeHtml).join("<br>")+'</p>')
+    paragraph=[]
+  }
+
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i]
+    const trimmed=line.trim()
+
+    if(!trimmed){flushParagraph();continue}
+
+    if(trimmed.startsWith("```")){
+      flushParagraph()
+      const block=[]
+      i++
+      while(i<lines.length&&!lines[i].trim().startsWith("```")){block.push(lines[i]);i++}
+      out.push('<pre class="q-code">'+escapeHtml(block.join("\n"))+'</pre>')
+      continue
+    }
+
+    if(isLikelyCodeLine(line)&&i+1<lines.length&&isLikelyCodeLine(lines[i+1])){
+      flushParagraph()
+      const block=[line]
+      i++
+      while(i<lines.length&&lines[i].trim()&&isLikelyCodeLine(lines[i])){block.push(lines[i]);i++}
+      i--
+      out.push('<pre class="q-code">'+escapeHtml(block.join("\n"))+'</pre>')
+      continue
+    }
+
+    if(isLikelySingleLineCode(line)){
+      flushParagraph()
+      out.push('<pre class="q-code">'+escapeHtml(line)+'</pre>')
+      continue
+    }
+
+    if(isPipeLine(line)&&i+1<lines.length&&isPipeLine(lines[i+1])){
+      flushParagraph()
+      const block=[line]
+      i++
+      while(i<lines.length&&lines[i].trim()&&isPipeLine(lines[i])){block.push(lines[i]);i++}
+      i--
+      out.push('<pre class="q-table">'+escapeHtml(block.join("\n"))+'</pre>')
+      continue
+    }
+
+    if(/^(before|after|antes|despu[eé]s|sql)\s*:?$/i.test(trimmed)){
+      flushParagraph()
+      out.push('<div class="q-h">'+escapeHtml(trimmed.replace(/:$/,""))+'</div>')
+      continue
+    }
+
+    paragraph.push(line)
+  }
+
+  flushParagraph()
+  return out.join("")
+}
+function setPrompt(text){promptEl.innerHTML=formatPromptText(text)}
 function toggleOrder(){orderMode=orderMode==="random"?"sequential":"random";btnOrder.textContent=orderMode==="random"?"🔀 Aleatorio":"🔢 En orden";btnOrder.classList.toggle("active",orderMode==="sequential");resetGame()}
 function clone(o){return JSON.parse(JSON.stringify(o))}
 function getNavigableOptions(){return[...optionsEl.querySelectorAll(".opt,.optCheck")]}
@@ -267,7 +380,7 @@ function clearQuestionArea(){optionsEl.innerHTML="";statusEl.innerHTML="";multiH
 function resetLocal(){
   correct=0;answered=0;streak=0;history=[];historyIndex=-1;current=null;locked=false
   clearQuestionArea()
-  promptEl.textContent='Pulsa "Siguiente →" para empezar.'
+  setPrompt('Pulsa "Siguiente →" para empezar.')
   streakBadgeEl.style.display="none";updateScore();updatePrevButton()
 }
 function updatePrevButton(){btnPrev.disabled=historyIndex<=0}
@@ -325,7 +438,7 @@ function renderQuestion(questionData,entry=null,readOnly=false){
     optionsEl.innerHTML='<div class="done-card"><div class="big">🎉</div><h2>¡Quiz completado!</h2><p>Has respondido todas las preguntas de este banco.</p><div class="done-score">'+correct+' / '+answered+' correctas &nbsp;·&nbsp; '+pct+'%</div><br/><button class="btn-primary" onclick="resetGame()">↺ Volver a empezar</button></div>'
     return
   }
-  promptEl.textContent=current.question
+  setPrompt(current.question)
   updateScore(current.progress)
   if(current.is_multi)multiHintEl.style.display="inline-flex"
   if(!current.is_multi){
@@ -368,7 +481,7 @@ function restoreHistoryEntry(index){
   updatePrevButton();renderQuestion(entry.question,entry,!!entry.result)
 }
 async function loadQuestion(){
-  locked=false;clearQuestionArea();promptEl.textContent="Cargando..."
+  locked=false;clearQuestionArea();setPrompt("Cargando...")
   if(historyIndex>=0&&historyIndex<history.length-1){restoreHistoryEntry(historyIndex+1);return}
   const res=await fetch("/api/dbx/next/?track="+getTrack()+"&exam="+getExam()+"&order="+getOrder())
   const data=await res.json();current=data
