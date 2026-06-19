@@ -89,6 +89,10 @@
   .btn-primary:hover:not(:disabled) { background: #1648c7; border-color: #1648c7; }
   .btn-reset { color: var(--bad-color); border-color: #fca5a5; }
   .btn-reset:hover:not(:disabled) { background: var(--bad-soft); border-color: var(--bad-color); }
+  .btn-order { color: #6366f1; border-color: #c7d2fe; }
+  .btn-order:hover:not(:disabled) { background: #eef2ff; border-color: #6366f1; }
+  .btn-order.active { background: #6366f1; color: #fff; border-color: #6366f1; }
+  .btn-order.active:hover:not(:disabled) { background: #4f46e5; border-color: #4f46e5; }
   .kbd-hint {
     font-size: 11px; color: var(--text-muted); text-align: right;
     margin-bottom: 14px; user-select: none;
@@ -199,6 +203,7 @@
       </select>
     </span>
     <div class="btn-group">
+      <button id="btnOrder" class="btn-order">🔀 Aleatorio</button>
       <button id="btnReset" class="btn-reset">↺ Reiniciar</button>
       <button id="btnPrev" disabled>← Atrás</button>
       <button id="btnNext" class="btn-primary">Siguiente →</button>
@@ -221,10 +226,12 @@ const titleEl=$("title"),promptEl=$("prompt"),optionsEl=$("options"),statusEl=$(
 const examAssociate=$("examAssociate"),examProfessional=$("examProfessional")
 const examWrapAssociate=$("examWrapAssociate"),examWrapProfessional=$("examWrapProfessional")
 const scoreEl=$("score"),barEl=$("bar"),streakBadgeEl=$("streakBadge"),progressLabel=$("progressLabel"),progressPct=$("progressPct")
-const btnNext=$("btnNext"),btnPrev=$("btnPrev"),btnReset=$("btnReset")
-let current=null,history=[],historyIndex=-1,correct=0,answered=0,streak=0,locked=false,activeOptionIndex=-1
+const btnNext=$('btnNext'),btnPrev=$('btnPrev'),btnReset=$('btnReset'),btnOrder=$('btnOrder')
+let current=null,history=[],historyIndex=-1,correct=0,answered=0,streak=0,locked=false,activeOptionIndex=-1,orderMode="random"
 const getTrack=()=>quizEl.value==="dbx-professional"?"professional":"associate"
 const getExam=()=>quizEl.value==="dbx-professional"?examProfessional.value:examAssociate.value
+const getOrder=()=>orderMode
+function toggleOrder(){orderMode=orderMode==="random"?"sequential":"random";btnOrder.textContent=orderMode==="random"?"🔀 Aleatorio":"🔢 En orden";btnOrder.classList.toggle("active",orderMode==="sequential");resetGame()}
 function clone(o){return JSON.parse(JSON.stringify(o))}
 function getNavigableOptions(){return[...optionsEl.querySelectorAll(".opt,.optCheck")]}
 function setActiveOption(idx){
@@ -363,7 +370,7 @@ function restoreHistoryEntry(index){
 async function loadQuestion(){
   locked=false;clearQuestionArea();promptEl.textContent="Cargando..."
   if(historyIndex>=0&&historyIndex<history.length-1){restoreHistoryEntry(historyIndex+1);return}
-  const res=await fetch("/api/dbx/next/?track="+getTrack()+"&exam="+getExam())
+  const res=await fetch("/api/dbx/next/?track="+getTrack()+"&exam="+getExam()+"&order="+getOrder())
   const data=await res.json();current=data
   if(current.done){renderQuestion(current);return}
   history.push(createHistoryEntry(current));historyIndex=history.length-1;updatePrevButton();renderQuestion(current)
@@ -384,7 +391,7 @@ async function answerMulti(){
   if(data.ok)correct++;updateStreak(data.ok);updateScore(current.progress);saveAnswerInHistory(picked,data);paintMultiResult(data,picked);renderStatus(data)
 }
 function goPrev(){if(historyIndex<=0)return;restoreHistoryEntry(historyIndex-1)}
-btnNext.onclick=loadQuestion;btnPrev.onclick=goPrev;btnReset.onclick=resetGame
+btnNext.onclick=loadQuestion;btnPrev.onclick=goPrev;btnReset.onclick=resetGame;btnOrder.onclick=toggleOrder
 quizEl.onchange=applyUI
 examAssociate.onchange=()=>{resetLocal();loadQuestion()}
 examProfessional.onchange=()=>{resetLocal();loadQuestion()}

@@ -234,7 +234,8 @@ def dbx_next(request):
             "total": len(questions)
         })
 
-    idx = random.choice(remaining)
+    order = request.GET.get("order", "random")
+    idx = remaining[0] if order == "sequential" else random.choice(remaining)
     q = questions[idx]
 
     seen.add(idx)
